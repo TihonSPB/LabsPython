@@ -310,10 +310,24 @@ print(type(listseq)) # Выводит <class 'list'>
 Любой объект Python, может стать значением в словаре.
 
 ```python
-D = {'food': 'Apple', 'quantity': 4, 'color': 'Red'}
+D = {
+     'food': 'Apple', 
+     'quantity': 4, 
+     'color': 'Red',
+     }
+
 print(D['food']) # Выводит значение Apple, по ключу food
 D['quantity']+=10 # Добавляет значению 4+10, по ключу quantity
 print(D['quantity'])  # Выводит значение 14, по ключу quantity
+     
+# in, not in Проверка наличия ключа в словаре
+print('color' in D) # True ключ color присутствует в словаре D
+print(4 not in D) # True ключ 4 отсутствует в словаре D
+
+# Функция get если ключ не представлен в словаре / списке, возвращает другое указанное значение
+print(D.get(4)) # None
+print(D.get(4, "not found")) # not found
+print(D.get('food', "not found")) # Apple
 ```
 
 Пример:
