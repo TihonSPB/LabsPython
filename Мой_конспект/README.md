@@ -289,6 +289,22 @@ print(lis) # выводит: [2, 3, 5, 6, 6, 11, 33]
 print(' '.join(map(str, lis))) # выводит: 2 3 5 6 6 11 33
 ```
 
+Распаковка списка
+
+```python
+myTuple = [1, 2, 3]
+x, y, z = myTuple
+print(x) # 1
+print(y) # 2
+print(z) # 3
+
+a, b, *c, d = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+print(a) # 1
+print(b) # 2
+print(c) # [3, 4, 5, 6, 7, 8]
+print(d) # 9
+```
+
 ---
 
 ## Кортежи (tuple)
@@ -301,6 +317,22 @@ print(seq.count(8)) # возвращает количество вхождени
 print(seq.index(44)) # возвращает индекс первого вхождения указанного значения
 listseq = list(seq) # Преобразует кортеж к типу «список»
 print(type(listseq)) # Выводит <class 'list'>
+```
+
+Распаковка кортежа
+
+```python
+myTuple = (1, 2, 3)
+x, y, z = myTuple
+print(x) # 1
+print(y) # 2
+print(z) # 3
+
+a, b, *c, d = (1, 2, 3, 4, 5, 6, 7, 8, 9)
+print(a) # 1
+print(b) # 2
+print(c) # [3, 4, 5, 6, 7, 8]
+print(d) # 9
 ```
 
 ---
