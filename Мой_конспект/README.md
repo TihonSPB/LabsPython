@@ -625,6 +625,108 @@ def sum(a, b):
 
 ---
 
+### Лямбда (ананимные) функции
+
+```python
+# Лямбда функция
+print((lambda x: x**2 + 5*x + 4) (-4))
+
+# Аналог именной функции
+def polynomial(x):
+    return x**2 + 5*x + 4
+print(polynomial(-4))
+```
+
+Пример передачи лямбда функции
+
+```python
+def my_func(f, arg): # принимает f = lambda x: 2*x*x, arg = 5
+  return f(arg) # возвращает (lambda x: 2*x*x)(5) => 2*5*5 = 50
+
+lam = my_func(lambda x: 2*x*x, 5)
+print(lam) # 50
+```
+
+---
+
+### Функция map
+
+Функция для работы со списками или подобными объектами
+
+Пример с передачей в функцию каждого аргумента списка
+
+```python
+def add_three(x):
+    return x + 3
+
+nums = [10, 15, 20, 25]
+result = list(map(add_three, nums))
+print(result) # [13, 18, 23, 28]
+```
+
+Пример с использованием lambda
+
+```python
+nums = [10, 15, 20, 25]
+result = list(map(lambda x: x + 3, nums))
+print(result) # [13, 18, 23, 28]
+```
+
+---
+
+### Функция filter
+
+Функция для работы со списками или подобными объектами
+
+Фильтрует итерируемый объект, оставляя только элементы, которые соответствуют условию
+
+```python
+nums = [10, 15, 20, 25]
+result = list(filter(lambda x: x%2==0, nums))
+print(result) # [10, 20]
+```
+
+---
+
+### Декораторы
+
+Функции которые расширяют функциональность функций, которые не хотите изменять.
+
+```python
+def decor(func): # функция принимает функцию
+    def wrap():
+        print("============")
+        func()
+        print("============")
+    return wrap
+
+def print_my_text():
+    print("My text")
+
+noDecorated = print_my_text
+noDecorated()
+   
+decorated = decor(print_my_text)
+decorated()
+```
+
+Пример присваивания декоратора к функции @
+
+```python
+def decor(func): # функция принимает функцию
+    def wrap():
+        print("============")
+        func()
+        print("============")
+    return wrap
+
+@decor
+def print_my_text():
+    print("My text")
+
+print_my_text()
+```
+
 ## Свой модуль для python
 
 Модулем служит любой файл с расширением .py 
