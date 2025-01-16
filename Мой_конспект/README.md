@@ -292,8 +292,8 @@ print(' '.join(map(str, lis))) # выводит: 2 3 5 6 6 11 33
 Распаковка списка
 
 ```python
-myList = [1, 2, 3]
-x, y, z = myList
+my_list = [1, 2, 3]
+x, y, z = my_list
 print(x) # 1
 print(y) # 2
 print(z) # 3
@@ -330,8 +330,8 @@ print(type(listseq)) # Выводит <class 'list'>
 Распаковка кортежа
 
 ```python
-myTuple = (1, 2, 3)
-x, y, z = myTuple
+my_tuple = (1, 2, 3)
+x, y, z = my_tuple
 print(x) # 1
 print(y) # 2
 print(z) # 3
@@ -726,6 +726,24 @@ def print_my_text():
 
 print_my_text()
 ```
+
+---
+
+### Рекурсия 
+
+Рекурсия когда функции вызывают сами себя. 
+
+```python
+def factorial(x):
+    if x == 1:
+        return 1
+    else: 
+        return x * factorial(x-1)
+
+print(factorial(5))
+```
+
+---
 
 ## Свой модуль для python
 
