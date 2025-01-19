@@ -745,6 +745,56 @@ print(factorial(5))
 
 ---
 
+## Класс
+
+Имя класса с большой буквы
+
+```python
+class Cat: # класс Cat
+    
+    legs = 4 # статический атрибут
+    
+    # методы - функции внутри класса
+    # метод __init__ вызывается когда создаеться экземпляр (объект), где указываются свойства (атрибуты)
+    def __init__(self, name, wool_color, eyes_color):
+        self.name = name
+        self.wool_color = wool_color
+        self.eyes_color = eyes_color
+
+    # действия (методы), которые способен совершать класс
+    
+    # Мурлыкать
+    def purr(self):
+        print("Муррр!")
+    
+    # Шипеть
+    def hiss(self):
+        print("Шшшшшш!")
+```
+
+Работа с объектом на основе класса
+
+```python
+# Создание объекта
+my_cat = Cat("Барсик", "Рыжий", "Зеленые") # новый объект с атрибутами
+
+# Вывод атрибутов
+print(my_cat.name) # Барсик
+print(my_cat.wool_color) # Рыжий
+print(my_cat.eyes_color) # Зеленые
+print(my_cat.legs) # 4
+
+# Изменение атрибута объекта
+my_cat.wool_color = "Белый"
+print(my_cat.wool_color) # Белый
+
+# Обращение к методам класса
+my_cat.purr() # Муррр!
+my_cat.hiss() # Шшшшшш!
+```
+
+---
+
 ## Свой модуль для python
 
 Модулем служит любой файл с расширением .py 
