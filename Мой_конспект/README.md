@@ -769,7 +769,7 @@ class Cat: # класс Cat
     
     # Шипеть
     def hiss(self):
-        print("Шшшшшш!")
+        print("Кот по кличке " + self.name + " сказал: Шшшшшш!")
 ```
 
 Работа с объектом на основе класса
@@ -790,7 +790,36 @@ print(my_cat.wool_color) # Белый
 
 # Обращение к методам класса
 my_cat.purr() # Муррр!
-my_cat.hiss() # Шшшшшш!
+my_cat.hiss() # Кот по кличке Барсик сказал: Шшшшшш!
+```
+
+---
+
+### Наследование
+
+```python
+# Суперкласс 
+class Animal: 
+    def __init__(self, name, color):
+        self.name = name
+        self.color = color
+
+# Классы наследники
+class Cat(Animal):
+    def voice(self):
+        print("Муррр!")
+        
+class Dog(Animal):
+    def voice(self):
+        print("Гав!")
+
+# Создание объекта        
+my_dog = Dog("Шарик", "Черный")
+my_cat = Cat("Мурзик", "Белый")
+
+# Обращение к методам класса
+my_cat.voice() # Муррр!
+my_dog.voice() # Гав!
 ```
 
 ---
