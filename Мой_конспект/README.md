@@ -1198,6 +1198,112 @@ print(result) # JavaScript is great. I love JavaScript.
 
 ---
 
+### Метасимволы
+
+благодаря метасимволам регулярные выражения эффективней обычных строковых методов.
+«сырая» строка - обычная строка, начинающуюся с «r».
+
+. (точка) - любой символ, исключая символ новой строки
+
+Пример:
+
+```python
+import re
+
+pattern = r"gr.y"
+
+if re.match(pattern, "grey"): # True
+    print("Match 1") 
+
+if re.match(pattern, "gray"): # True
+    print("Match 2") 
+
+if re.match(pattern, "blue"): # False
+    print("Match 3")
+```
+    
+^ - начало строки
+$ - конец строки
+
+```python
+pattern = r"^gr.y$" # строка должна начинаться с gr, в середине содержать любой символ, за исключением символа новой строки, заканчиваться на у.
+```
+
+* - ноль или более упоминаний объекта поиска
+
+```python
+pattern = r"egg(spam)*" # будут найдены строки, начинающиеся с «egg», за которой следует (или нет) неограниченное число упоминаний «spam». "egg" - True; "eggspamspamegg" - True
+```
+
++ - одно (или более) упоминание объекта поиска
+
+```python
+pattern = r"g+" # "g" - True; "gggggggggggggg" - True
+```
+
+? - ноль повторений или одно повторение
+
+```python
+pattern = r"ice(-)?cream" # "ice-cream" - True; "icecream" - True
+```
+
+{х, у} - упоминания объекта поиска между х и у
+
+```python
+pattern = r"9{1,3}$" # "9" - True; "999" - True
+```
+
+### Классы символов
+
+Классы символов поиск конкретного символа из набора символов.
+
+```python
+pattern = r"[aeiou]" # будут найдены все строки, содержащие хотя бы один символ с набора.
+```
+
+класс [a-z] - поиск любой строчной буквы
+класс [G-P] - поиск любого символа верхнего регистра от G до P
+класс [0-9] - поиск любой цифры.
+класс [A-Za-z] - поиск любой буквы алфавита верхнего или нижнего регистра.
+
+Пример:
+
+```python
+import re
+
+pattern = r"[A-Z][A-Z][0-9]"
+
+if re.search(pattern, "LS8"): # True
+    print("Match 1")
+
+if re.search(pattern, "E3"): # False
+    print("Match 2")
+
+if re.search(pattern, "1ab"): # False
+    print("Match 3")
+```
+
+инвертировать класс символов, нужно поместить ^ в начало определения класса
+
+Пример:
+
+```python
+import re
+
+pattern = r"[^A-Z]" # ищет любой символ, кроме символов класса. символ ^ должен быть внутри скобок.
+
+if re.search(pattern, "this is all quiet"): # True
+    print("Match 1")
+
+if re.search(pattern, "AbCdEfG123"): # True
+    print("Match 2")
+
+if re.search(pattern, "THISISALLSHOUTING"): # False
+    print("Match 3")
+```
+
+---
+
 ## Свой модуль для python
 
 Модулем служит любой файл с расширением .py 
