@@ -1247,11 +1247,19 @@ pattern = r"g+" # "g" - True; "gggggggggggggg" - True
 pattern = r"ice(-)?cream" # "ice-cream" - True; "icecream" - True
 ```
 
+| - «или» красный|синий вернется либо «красный» или «синий»
+
+```python
+pattern = r"gr(a|e)y" # "gray" - True; "grey" - True; "griy" - False
+```
+
 {х, у} - упоминания объекта поиска между х и у
 
 ```python
 pattern = r"9{1,3}$" # "9" - True; "999" - True
 ```
+
+---
 
 ### Классы символов
 
@@ -1300,6 +1308,59 @@ if re.search(pattern, "AbCdEfG123"): # True
 
 if re.search(pattern, "THISISALLSHOUTING"): # False
     print("Match 3")
+```
+
+---
+
+### Группы
+
+Группа создается путем заключения части регулярного выражения в круглые скобки ().
+
+```python
+pattern = r"egg(spam)*" # (spam) представляет собой группу внутри набора символов
+```
+
+Функция group
+
+group(0) или group() - метод возвращает все найденные совпадения  
+group(n), где n больше 0 - метод возвращает n-ю группу, считая слева.  
+groups() - метод возвращает все группы, начиная с первой.
+
+Пример:
+
+```python
+import re
+
+pattern = r"a(bc)(de)(f(g)h)i"
+
+match = re.match(pattern, "abcdefghijklmnop")
+if match:
+    print(match.group()) # abcdefghi
+    print(match.group(0)) # abcdefghi
+    print(match.group(1)) # bc
+    print(match.group(2)) # de
+    print(match.groups()) # ('bc', 'de', 'fgh', 'g')
+```
+
+Именованные группы 
+
+group(name) - метод возвращает группу по имени.  
+Формат: (?P<name>...) - где name - имя группы, а ... - содержание группы.  
+
+«незахватывающие» группы. Их нельзя получить по методу группы, поэтому их можно добавлять в регулярное выражение, не нарушая нумерацию.  
+Формат: (?:...) - где ... - содержание группы. 
+
+Пример:
+
+```python    
+import re
+
+pattern = r"(?P<first>abc)(?:def)(ghi)"
+
+match = re.match(pattern, "abcdefghi")
+if match:
+    print(match.group("first")) # abc
+    print(match.groups()) # ('abc', 'ghi')
 ```
 
 ---
