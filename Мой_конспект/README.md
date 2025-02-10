@@ -1456,7 +1456,7 @@ if match:
 
 ---
 
-## __main__
+## \_\_main\_\_
 
 ```python
 def function():
