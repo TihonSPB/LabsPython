@@ -41,5 +41,5 @@ for line in open(path).read().split("\n"): # читаем одной строк�
             
 # print(header) # шапка ['zip_code', 'latitude', 'longitude', 'city', 'state', 'county']
 # print(zip_codes[2]) # строка 2 ['00601', 18.165273, -66.722583, 'Adjuntas', 'PR', 'Adjuntas']
-print(type(zip_codes[2][1])) # строка 2 ['00601', 18.165273, -66.722583, 'Adjuntas', 'PR', 'Adjuntas']
+
 
