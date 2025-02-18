@@ -236,8 +236,10 @@ if __name__ == "__main__":
     #Интерфейс пользователя
     zip_codes = read_zip_all()
     command = ""
+    
     while command != "end":
         command = input("Команды ('loc', 'zip', 'dist', 'end') => ") # запрос команды и ввод
+        
         '''
         # logging.info(f'Received command {command}')
         logger_main.debug('Debugging...')
@@ -245,6 +247,7 @@ if __name__ == "__main__":
         logger_main.info(f'Received command {command}')
         logger_aux.info(f'Received command {command}')
         '''
+        
         print(command)
         command = command.strip().lower() #удаляются пробелы с обоих сторон, приводим к нижнему регистру
         # Выполнение выбранной команды
