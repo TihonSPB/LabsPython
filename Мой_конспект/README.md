@@ -1532,29 +1532,31 @@ python -m venv venv
 - Запускаем виртуальную среду. (зависит от операционной системы и используемой оболочки):  
 	- Windows (Command Prompt):  
 
-```
-.\<имя_виртуальной_среды>\Scripts\activate.bat
-```
-```
-.\venv\Scripts\activate.bat
-```
+	```
+	.\<имя_виртуальной_среды>\Scripts\activate.bat
+	```
+	```
+	.\venv\Scripts\activate.bat
+	```
+
 	- Windows (PowerShell):  
 
-```
-.\<имя_виртуальной_среды>\Scripts\Activate.ps1
-```
-```
-.\venv\Scripts\Activate.ps1
-```
+	```
+	.\<имя_виртуальной_среды>\Scripts\Activate.ps1
+	```
+	```
+	.\venv\Scripts\Activate.ps1
+	```
 
 	- macOS/Linux (bash/zsh):  
-```
-source <имя_виртуальной_среды>/bin/activate
-```
+		
+	```
+	source <имя_виртуальной_среды>/bin/activate
+	```
 
-```
-source venv/bin/activate
-```
+	```
+	source venv/bin/activate
+	```
 
 ---
 
