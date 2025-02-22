@@ -1506,6 +1506,225 @@ from my_modul import a #импорт только переменной a из м
 print(a) 
 ```
 
+---
+
+## Последовательность работы с БД
+
+---
+
+### MySQL
+
+1. Импортировать пакет  
+	
+	```python
+	import mysql.connector
+	```
+
+	или  
+
+	```python
+	import mysql.connector as SQLCon
+	```
+
+2. Открыть подключение  
+
+	```python
+	mycon = mysql.connector.connect(
+	host = 'localhost',
+	database = 'mysql',
+	user = 'root',
+	password = ''
+	)
+
+	if mycon.is_connected(): # проверка подключения
+	print("Успешное подключение!")
+	```
+
+3. Создать курсор  
+
+	Курсор обеспечивает однонаправленную построчную обработку записей результирующего набора данных (записей, полученных из БД в результате запроса)
+
+	```python
+	emp_cursor = mycon.cursor()
+	```
+
+4. Выполнить запрос  
+
+	```python
+	emp_cursor.execute("SELECT * FROM emp")
+	```
+
+	Дополнительно можно:  
+		
+	- Вызвать хранимую процедуру (.callproc())  
+		
+		```python
+		result_proc = emp_cursor.callproc('proc_name', [a, b, 0, 0])
+		```
+		
+	- Выполнить запрос с несколькоми SELECT (.nextset())  
+		
+		```python
+		query = """
+		SELECT * FROM table1;
+		SELECT * FROM table2;
+		"""
+		
+		emp_cursor.execute(query)
+		
+		# Обработка первого набора результатов
+		print("Результаты из table1:")
+		for row in emp_cursor:
+		print(row)
+		
+		# Переход к следующему набору результатов
+		emp_cursor.nextset()
+		
+		# Обработка второго набора результатов
+		print("Результаты из table2:")
+		for row in emp_cursor:
+		print(row)
+		```
+		
+5. Обработать записи результирующего набора данных  
+
+	Обработка первой строки результата  
+	```python
+	emp_cursor.fetchone()
+	```
+
+	Задать, сколько строк результата необходимо обработать  
+	```python
+	emp_cursor.fetcmany(n)
+	```
+
+	Обработка всех строк результата  
+	```python
+	emp_cursor.fetchall()
+	```
+
+6. Закрыть подключение и очистить среду от ненужных объектов  
+
+	```python
+	# Закрытие курсора и соединения
+
+	emp_cursor.close()
+
+	mycon.close()
+	```
+
+---
+
+### PgSQL
+
+- Устанавливаем модуль psycopg через командную строку  
+	
+	```
+	python -m pip install psycopg[binary]
+	```
+	
+1. Импортировать пакет  
+	
+	```python
+	import psycopg
+	```
+	
+2. Открыть подключение  
+	
+	```python
+	conn = psycopg.connect(
+	dbname="zip",
+	host="localhost",
+	user="postgres",
+	password="Pa$$W0rd",
+	port="5432"
+	)
+	```
+	
+	> dbname имя базы данных  
+	> host "localhost"  
+	> user пользователь  
+	> password пароль  
+	> port стандартный для PostgreSQL "5432"  
+	
+3. Создать курсор  
+	
+	```python
+	cursor = conn.cursor()
+	```
+
+4. Выполнить запрос  
+	
+	После выполнения операций, изменяющих данные (INSERT, UPDATE, DELETE), необходимо вызвать conn.commit()  
+	
+	- Выполнение SQL-запроса
+	
+	```python
+	# Создание таблицы
+	cursor.execute("""
+		CREATE TABLE IF NOT EXISTS test_table (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(50) NOT NULL,
+			age INT
+		)
+	""")
+
+	# Вставка данных
+	cursor.execute("INSERT INTO test_table (name, age) VALUES (%s, %s)", ("Alice", 25))
+	cursor.execute("INSERT INTO test_table (name, age) VALUES (%s, %s)", ("Bob", 30))
+
+	# Фиксация изменений (commit)
+	conn.commit()
+	```  
+	
+5. Выборка данных  
+	
+	```python
+	# Выборка данных
+	cursor.execute("SELECT * FROM test_table")
+	rows = cursor.fetchall()
+
+	# Вывод результатов
+	for row in rows:
+		print(row)
+	```
+
+6. Обновление данных  
+	
+	```python
+	# Обновление данных
+	cursor.execute("UPDATE test_table SET age = %s WHERE name = %s", (26, "Alice"))
+
+	# Фиксация изменений
+	conn.commit()
+	```
+
+7. Удаление данных
+	
+	```python
+	# Удаление данных
+	cursor.execute("DELETE FROM test_table WHERE name = %s", ("Bob",))
+
+	# Фиксация изменений
+	conn.commit()
+	```
+
+8. Вызов хранимой процедуры callproc()
+	
+	```python
+	# Вызов хранимой процедуры
+	cursor.callproc('add_numbers', (5, 10))
+	result = cursor.fetchone()
+	```
+
+9. Закрытие соединения
+	
+	```python
+	# Закрытие курсора и соединения
+	cursor.close()
+	conn.close()
+	```
+
 ---  
 
 ## Виртуальная среда  
