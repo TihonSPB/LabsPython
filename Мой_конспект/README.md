@@ -1617,7 +1617,7 @@ print(a)
 	- Удаление данных  
 	
 	```python
-	''Пример. Требуется удалить любого пользователя с фамилией «Parker» '''
+	'''Пример. Требуется удалить любого пользователя с фамилией «Parker» '''
 	cur.execute("DELETE FROM users WHERE lname='Parker';")
 	conn.commit()
 	
