@@ -372,7 +372,20 @@ D = {
 
 print(D['food']) # Выводит значение Apple, по ключу food
 D['quantity']+=10 # Добавляет значению 4+10, по ключу quantity
-print(D['quantity'])  # Выводит значение 14, по ключу quantity
+
+D['name'] = "Tihon" # Добавляет в словарь новый ключь name и его значение Tihon
+
+print(D.keys()) # Вывод всех ключей словаря dict_keys(['food', 'quantity', 'color', 'name'])
+print(list(D.keys())) # Все ключи словаря как список ['food', 'quantity', 'color', 'name']
+
+print(D.values()) # Вывод всех значений словаря dict_values(['Apple', 14, 'Red', 'Tihon'])
+print(list(D.keys())) # Все значения словаря как список ['food', 'quantity', 'color', 'name']
+
+print(D.items()) # Вывод пар словаря dict_items([('food', 'Apple'), ('quantity', 14), ('color', 'Red'), ('name', 'Tihon')])
+
+print(len(D)) # Длина словаря 4
+
+del D['name'] # Удаление пары из словаря (ключа name и его значения Tihon)
      
 # in, not in Проверка наличия ключа в словаре
 print('color' in D) # True ключ color присутствует в словаре D
