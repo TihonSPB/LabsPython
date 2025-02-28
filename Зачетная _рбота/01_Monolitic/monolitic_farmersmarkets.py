@@ -5,20 +5,26 @@
 # Работа с данными. Ответ на запросы от основного приложения
 import os # Для работы с путями
 import sqlite3 # Импортировать пакет для работы с SQLite
-from modul_db import creating_farmersmarkets_db_sqlite_db as fm_db
-
-# Путь к БД
-db_path = os.path.join(os.path.dirname(__file__), 'modul_db', 'farmersmarkets.db')
 
 #????????????????????????????????????
 # Сообщение для тестирования, можно переделать для log файлов
 def test_msg(msg):
+    symbol = "!"
     frame_length = len(msg) + 4
-    horizontal_frame = "#" * frame_length + "##"
-    vertical_indentation = " " * frame_length
-    print("\n" + horizontal_frame + "\n#" + vertical_indentation + "#\n#  " + msg + "  #\n#" + vertical_indentation + "#\n" + horizontal_frame + "\n")
+    horizontal_frame = "\n" + symbol * frame_length + symbol * 2
+    vertical_indentation = "\n" + symbol + " " * frame_length + symbol
+    info_msg = "\n" + symbol + " " * 2 + msg + " " * 2  + symbol
+    print(horizontal_frame + vertical_indentation + info_msg + vertical_indentation + horizontal_frame + "\n")
     
 #????????????????????????????????????
+
+try:
+    from modul_db import creating_farmersmarkets_db_sqlite_db as fm_db
+except Exception as e:
+    test_msg(f"Ошибка modul_db! Error: {str(e)}")
+   
+# Путь к БД
+db_path = os.path.join(os.path.dirname(__file__), 'modul_db', 'farmersmarkets.db')
 
 # Создание новой БД или сброс к первоначальной.
 def database_reset():
@@ -37,36 +43,33 @@ def database_check():
 def db_connection(func):    
     def wrap():
         # Проверка наличия файла базы данных
-        database_check()
-        
+        database_check()        
         conn = sqlite3.connect(db_path) # Создает объект connection
         cur = conn.cursor() # Создать курсор
         try:            
-            func(cur)
+            result = func(cur)
             # Фиксация изменений
             conn.commit()
-            test_msg("Test commit!")
-        except:
+            # test_msg("Test commit!")
+        except Exception as e:
             # Откат в случае ошибки
             conn.rollback()
-            test_msg("Test rollback!")
+            test_msg(f"Test rollback! Error: {str(e)}")
         finally:
             # Закрытие соединения
             cur.close()
             conn.close()
-            test_msg("Test close!")
+            # test_msg("Test close!")
+            return result
     return wrap
 
 #--------------------------------------------------------------------------------------
 # Чтение данных
-
-@db_connection
-def my_test(cur):
-    cur.execute("SELECT * FROM markets;")
-    all_results = cur.fetchall()
-    print('markets результат \n', all_results) # 
-
 # Вывод всех рынков
+@db_connection
+def show_all(cur):
+    cur.execute("SELECT * FROM markets;")
+    return cur.fetchall() # 
 
 # Поиск рынка по id
 
@@ -87,19 +90,20 @@ def my_test(cur):
 
 #######################################################################################
 # Представление (View) Отвечает за вывод пользователю
+#import tabulate ?????????????????? Вылетает
 
-
-def print_prompt():
+def print_prompt():    
     print("""Команды: 
           
-    newdb - Удалить все изменения, внесенные в базу данных.
-    two - Просмотр списка всех фермерских рынков в стране (включая рецензии и рейтинги).
-    three - Поиск фермерского рынка по городу и штату.
-    # - Поиск фермерского рынка по почтовому индексу с возможностью ограничить зону поиска дальностью.
-    # - Подробная информация о рынке.
+    1 - Удалить все изменения, внесенные в базу данных.
+    2 - Просмотр списка всех фермерских рынков в стране (включая рецензии и рейтинги).
+    3 - Поиск фермерского рынка по городу и штату.
+    4 - Поиск фермерского рынка по почтовому индексу с возможностью ограничить зону поиска дальностью.
+    5 - Подробная информация о рынке.
     end - Выход.
           
 Введите команду => """, end='')
+
     
 def print_command(command):
     print(command)
@@ -112,6 +116,10 @@ def print_newline():
     
 def print_exit():
     print("Выход")
+    
+def print_table(my_list):
+    #print(tabulate.tabulate(my_list))
+    print(my_list)
 
 #######################################################################################
 # Контроллер (Controller)
@@ -122,7 +130,7 @@ if __name__ == "__main__":
     def new_db():
         database_reset()
     def process_two():
-        my_test()
+        print_table(show_all())
     def process_three():
         pass
         
@@ -134,13 +142,14 @@ if __name__ == "__main__":
         command = input()
         print_command(command)
         command = command.strip().lower()
-        if command == 'newdb':
+        if command == '1':
             new_db()
-        elif command == 'two':
+        elif command == '2':
             process_two()
-        elif command == 'three':
+        elif command == '3':
             process_three()
         elif command != 'end':
             print_invalid_command()
         print_newline()
+        
     print_exit()
