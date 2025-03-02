@@ -955,6 +955,17 @@ print(my_cat.wool_color) # Белый
 # Обращение к методам объекта
 my_cat.purr() # Муррр!
 my_cat.hiss() # Кот по кличке Барсик сказал: Шшшшшш!
+
+# Добавление атрибута только для этого объекта 
+my_cat.weight = 8
+
+# Атрибуты хранятся в специальном словаре 
+print(my_cat.__dict__) # {'name': 'Барсик', 'wool_color': 'Белый', 'eyes_color': 'Зеленые', 'weight': 8}
+
+print(hasattr(my_cat, 'weight')) # True # hasattr проверить наличие атрибута
+print(getattr(my_cat, 'weight')) # 8 # getattr получить наличие атрибута
+setattr(my_cat, 'weight', 7) # изменить наличие атрибута
+print(my_cat.weight) # 7
 ```
 
 ---
