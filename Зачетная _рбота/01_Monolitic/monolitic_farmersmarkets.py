@@ -100,7 +100,7 @@ def print_prompt():
     3 - Поиск фермерского рынка по городу и штату.
     4 - Поиск фермерского рынка по почтовому индексу с возможностью ограничить зону поиска дальностью.
     5 - Подробная информация о рынке.
-    end - Выход.
+    0 - Выход.
           
 Введите команду => """, end='')
 
@@ -118,8 +118,9 @@ def print_exit():
     print("Выход")
     
 def print_table(my_list):
-    #print(tabulate.tabulate(my_list))
     print(my_list)
+    #print_list = tabulate.tabulate(my_list)
+    #print(print_list)
 
 #######################################################################################
 # Контроллер (Controller)
@@ -136,7 +137,7 @@ if __name__ == "__main__":
         
     command = ""
         
-    while command != 'end':
+    while command != '0':
                         
         print_prompt()
         command = input()
@@ -148,7 +149,7 @@ if __name__ == "__main__":
             process_two()
         elif command == '3':
             process_three()
-        elif command != 'end':
+        elif command != '0':
             print_invalid_command()
         print_newline()
         
