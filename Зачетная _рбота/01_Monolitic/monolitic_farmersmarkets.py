@@ -1,6 +1,165 @@
 # -*- coding: utf-8 -*-
 
 #######################################################################################
+# Представление (View) Отвечает за вывод пользователю
+# import tabulate #??? Вылетает в консоли
+
+MINS_IN_HOUR = 60
+SECS_IN_MIN = 60
+
+def degree_minutes_seconds(location): # Разбивка локации на градусы, минуты, секунды
+
+    minutes, degrees = math.modf(location)
+    degrees = int(degrees)
+    minutes *= MINS_IN_HOUR
+    seconds, minutes = math.modf(minutes)
+    minutes = int(minutes)
+    seconds = SECS_IN_MIN * seconds
+    return degrees, minutes, seconds # Кортеж
+
+def format_location(location): # Вывод градусов в формате (025°44'16.00"N,080°13'29.17"W)
+    # Определяем полушарие 
+    ns = ""
+    if location[0] < 0:
+        ns = 'S'
+    elif location[0] > 0:
+        ns = 'N'
+
+    ew = ""
+    if location[1] < 0:
+        ew = 'W'
+    elif location[0] > 0:
+        ew = 'E'
+
+    format_string = '{:03d}\xb0{:0d}\'{:.2f}"' # Градусы{:03d}-(03-3 знака; d-целое число); \xb0-символ "°"; Минуты{:0d}\'-0 будет сохраннен; Секунды{:.2f}"-Дробное с двумя знаками после запятой.
+    latdegree, latmin, latsecs = degree_minutes_seconds(abs(location[0]))
+    latitude = format_string.format(latdegree, latmin, latsecs)
+    longdegree, longmin, longsecs = degree_minutes_seconds(abs(location[1]))
+    longitude = format_string.format(longdegree, longmin, longsecs)
+    return '(' + latitude + ns + ',' + longitude + ew + ')'
+
+# Сообщение для тестирования, можно переделать для log файлов
+def print_msg(msg):
+    symbol = "!"
+    frame_length = len(msg) + 4
+    horizontal_frame = "\n" + symbol * frame_length + symbol * 2
+    vertical_indentation = "\n" + symbol + " " * frame_length + symbol
+    info_msg = "\n" + symbol + " " * 2 + msg + " " * 2  + symbol
+    print(horizontal_frame + vertical_indentation + info_msg + vertical_indentation + horizontal_frame + "\n")
+
+def print_request_username():
+    print("Введите имя пользователя: ", end='')
+    
+def print_request_password():
+    print("Введите пароль: ", end='')
+    
+def print_authorization_failed():
+    print("Неверное имя пользователя или пароль!")
+    
+def print_logout():
+    print("Вы вышли из системы.")
+    
+def print_login():
+    print("Успешный вход!")
+    
+def print_login_error():
+    print("Ошибка входа!")
+    
+def print_prompt():    
+    print("""Команды: 
+    
+    D - Удалить все изменения, внесенные в базу данных.
+    1 - Вход/Выход пользователя
+    2 - Просмотр списка всех фермерских рынков в стране (включая рецензии и рейтинги).
+    3 - Поиск фермерского рынка по городу и штату.
+    4 - Поиск фермерского рынка по id с возможностью ограничить зону поиска дальностью.
+    5 - Подробная информация о рынке.
+    0 - Закрыть.
+          
+Введите команду => """, end='')
+
+    
+# def print_command(command):
+#     print(command)
+
+def print_invalid_command():
+    print("Неверная команда")
+    
+def print_newline():
+    print()
+
+def print_request_city():
+    print("Введите город => ", end='')
+
+def print_request_state():
+    print("Введите штат => ", end='')
+
+def print_request_id():
+    print("Введите id рынка => ", end='')
+    
+def print_request_radius():
+    print("Введите радиус поиска рынков, в милях => ", end='')
+
+def print_not_found():
+    print("Не найдено!")
+
+def print_exit():
+    print("Выход")
+
+def print_table(my_list):
+    # print(my_list)     
+    # print(tabulate.tabulate(my_list))
+    
+    if not my_list:
+        return
+    # Определяем количество столбцов (по первому кортежу)
+    num_columns = len(my_list[0])
+    
+    # Проверяем, что все кортежи имеют одинаковую длину
+    for t in my_list:
+        if len(t) != num_columns:
+            raise ValueError("Все кортежи должны иметь одинаковое количество элементов")
+    
+    # Находим максимальную ширину для каждого столбца
+    column_widths = [0] * num_columns
+    for t in my_list:
+        for i in range(num_columns):
+            column_widths[i] = max(column_widths[i], len(str(t[i])))
+    
+    # Функция для создания разделительной строки
+    def make_separator():
+        return " ".join("-" * width for width in column_widths)
+    
+    # Печатаем верхнюю границу таблицы
+    print(make_separator())
+    
+    # Печатаем каждый кортеж с выравниванием
+    for t in my_list:
+        formatted_items = []
+        for i in range(num_columns):
+            # Форматируем каждый элемент с учетом максимальной ширины столбца
+            # str(t[i]) - Преобразует элемент кортежа в строку
+            # :< - Спецификатор форматирования ":" - начало блока форматирования "<" - выравнивание по левому краю
+            # column_widths[i] - Минимальная ширина. Строка дополнена пробелами справа если короче
+            formatted_items.append(f"{str(t[i]):<{column_widths[i]}}")
+        print(" ".join(formatted_items))
+    
+    # Печатаем нижнюю границу таблицы
+    print(make_separator())
+    
+def print_market_info(market_info):
+    location = market_info[0][7:9]
+    print(f"""
+-------------------
+Наименование рынка: {market_info[0][1]}
+------
+Адрес: {market_info[0][2]}, {market_info[0][3]}, {market_info[0][5]}({market_info[0][4]}), {str(market_info[0][6])}
+-----------
+Координаты: {format_location(location)}
+--------------------
+Категории продуктов: {market_info[0][9]}""")
+    
+#######################################################################################
 # Утилита (Util) Универсальная программа для расчета расстояния на поверхности земли
 
 import math
@@ -23,18 +182,6 @@ def calculate_distance(location1, location2):
 # Работа с данными. Ответ на запросы от основного приложения
 import os # Для работы с путями
 import sqlite3 # Импортировать пакет для работы с SQLite
-
-#???????????????????????????????????? Поместить в представление (View) или в отдельный класс
-# Сообщение для тестирования, можно переделать для log файлов
-def print_msg(msg):
-    symbol = "!"
-    frame_length = len(msg) + 4
-    horizontal_frame = "\n" + symbol * frame_length + symbol * 2
-    vertical_indentation = "\n" + symbol + " " * frame_length + symbol
-    info_msg = "\n" + symbol + " " * 2 + msg + " " * 2  + symbol
-    print(horizontal_frame + vertical_indentation + info_msg + vertical_indentation + horizontal_frame + "\n")
-    
-#????????????????????????????????????
 
 try:
     from modul_db import creating_farmersmarkets_db_sqlite_db as fm_db
@@ -72,6 +219,7 @@ def db_connection(func):
             # Откат в случае ошибки
             conn.rollback()
             print_msg(f"Test rollback! Error: {str(e)}")
+            result = []
         finally:
             # Закрытие соединения
             cur.close()
@@ -194,57 +342,85 @@ def market_search_by_id(cur, id_market):
         ''', (id_market, ))
     return cur.fetchall()
 
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///1 Тестовая
+# Получение пользователей
+@db_connection
+def user_test(cur):
+    cur.execute("SELECT * FROM users;")
+    return cur.fetchall()
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///1 Тестовая
+
+# Получение пользователя
+@db_connection
+def user_by_username(cur, username):
+    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
+    return cur.fetchone()  # Получаем первую найденную запись
+
 #--------------------------------------------------------------------------------------
 # Редактирование данных
 
 #######################################################################################
-# Представление (View) Отвечает за вывод пользователю
-import tabulate #?????????????????? Вылетает в консоли (Написать свою таблицу)
+# Класс AuthController (Ядро аутентификации)
+from getpass import getpass  # Для безопасного ввода пароля
+# from werkzeug.security import generate_password_hash, check_password_hash
 
-def print_prompt():    
-    print("""Команды: 
-          
-    1 - Удалить все изменения, внесенные в базу данных.
-    2 - Просмотр списка всех фермерских рынков в стране (включая рецензии и рейтинги).
-    3 - Поиск фермерского рынка по городу и штату.
-    4 - Поиск фермерского рынка по id с возможностью ограничить зону поиска дальностью.
-    5 - Подробная информация о рынке.
-    0 - Выход.
-          
-Введите команду => """, end='')
+class AuthController:
+    def __init__(self):
+        self.current_user = None  # ID текущего пользователя (None если не авторизован)
+        self.name = ""
+        self.lastname = ""
+        self.username = ""  # Имя пользователя для отображения
+        self.password_hash = ""  # Хеш пароля (можно использовать для проверок)
+   
+    def get_user(self, username):        
+        user = user_by_username(username)        
+        return user  # Возвращает кортеж с данными пользователя или None
+   
+    def verify_password(self, stored_hash, password):
+        # Проверяет соответствие пароля его хешу
+        # В реальном приложении использовать:
+        # from werkzeug.security import check_password_hash
+        # return check_password_hash(stored_hash, password)
+        return stored_hash == password  # Временная заглушка!
 
+    def login(self):
+        #Обрабатывает процесс входа пользователя
+        print_request_username()
+        username = input()
+        print_request_password()
+        password = getpass()  # Скрытый ввод пароля
+        
+        user = self.get_user(username)  # Ищем пользователя в БД
+        
+        if user and self.verify_password(user[4], password):
+            # Если пользователь найден и пароль верный:
+            self.current_user = user[0]  # Сохраняем ID (первое поле в таблице)
+            self.name = user[1]
+            self.lastname = user[2]
+            self.username = username
+            self.password_hash = user[4]  # Поле с хешем пароля
+            return True
+        print_authorization_failed()
+        return False  # Авторизация не удалась
     
-# def print_command(command):
-#     print(command)
+    def logout(self):
+        #Сбрасывает данные авторизации
+        self.current_user = None
+        self.name = ""
+        self.lastname = ""
+        self.username = ""
+        self.password_hash = ""
 
-def print_invalid_command():
-    print("Неверная команда")
-    
-def print_newline():
-    print()
+    def require_auth(self):
+        # Проверяет авторизацию, если нет - предлагает войти
+        if not self.current_user:
+            print("Для этого действия требуется войти в систему")
+            if self.login():  # Предлагаем войти
+                return True  # Пользователь успешно авторизовался
+            return False  # Пользователь не смог войти
+        return True  # Уже авторизован
 
-def print_request_city():
-    print("Введите город => ", end='')
 
-def print_request_state():
-    print("Введите штат => ", end='')
-
-def print_request_id():
-    print("Введите id рынка => ", end='')
-    
-def print_request_radius():
-    print("Введите радиус поиска рынков, в милях => ", end='')
-
-def print_not_found():
-    print("Не найдено!")
-
-def print_exit():
-    print("Выход")
-
-def print_table(my_list):
-    # print(my_list)     
-    print(tabulate.tabulate(my_list))
-    
 #######################################################################################
 # Контроллер (Controller)
 # Взаимодействует с пользователем (Принимает ввод от пользователя). Соединяет модель и представление
@@ -295,13 +471,15 @@ if __name__ == "__main__":
     else:
         print_msg("ОШИБКА тест 6.")
         failed += 1
-#3///NEW///START///NEW///START///NEW///START///NEW///START///NEW///START///NEW///START         
+    
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая         
     # print (search_markets_dist("Привет мир!"))
     # print (search_markets_dist("1011689"))    
     # print(market_search_by_id("1021728"))
     # print_table(search_markets_loc("Chicago", "IL"))
     # print(search_markets_loc("San Francisco", "CA"))
-#3///NEW///END///NEW///END///NEW///END///NEW///END///NEW///END///NEW///END///NEW///END    
+    print_table(user_test())
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая    
     # Итог тестирования
     if (failed == 0):
         print(f'Все тесты ({passed}) успешно пройдены')
@@ -310,8 +488,18 @@ if __name__ == "__main__":
         
 
 #--------------------------------------------------------------------------------------    
+    auth = AuthController()
     def new_db():
         database_reset()
+    def process_one():
+        if auth.current_user:
+            auth.logout()
+            print_logout()
+        else:
+            if auth.login():
+                print_login()
+            else:
+                print_login_error()
     def process_two():
         print_table(show_all())
     def process_three():
@@ -343,20 +531,22 @@ if __name__ == "__main__":
         print_request_id()
         market_info = market_search_by_id(input())
         if len(market_info) != 0:
-            print(market_info)
+            print_market_info(market_info)
         else:
             print_not_found()
         
     command = ""
         
     while command != '0':
-                        
+        
         print_prompt()
         command = input()
         # print_command(command)
         command = command.strip().lower()
-        if command == '1':
+        if command == 'd':
             new_db()
+        elif command == '1':
+            process_one()
         elif command == '2':
             process_two()
         elif command == '3':

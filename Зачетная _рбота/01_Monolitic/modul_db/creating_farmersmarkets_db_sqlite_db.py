@@ -95,7 +95,7 @@ def creating_or_reloading_db():
         
         conn.commit()# Сохраняет изменения для объекта соединения
         
-        print("Таблицы созданы: categories, cities, markets, markets_categories, reviews, states, users")
+        # print("Таблицы созданы: categories, cities, markets, markets_categories, reviews, states, users")
     except Exception as e:
         print(f"Ошибка! Таблицы не созданы: {e}")
 
@@ -177,7 +177,24 @@ def creating_or_reloading_db():
             ''', reader)
     except Exception as e:
         print(f"Ошибка при вставке данных в markets_categories: {e}")
-
+        
+    # Заполнение таблицы users
+    try:
+        # Данные для вставки
+        users_list = [
+            (1, 'John', 'Doe', 'johndoe', '123'),
+            (2, 'Jane', 'Smith', 'janesmith', '456'),
+            (3, 'Bob', 'Johnson', 'bobj', '789'),
+            ]
+        # Вставляем данные
+        cur.executemany('''
+        INSERT INTO users (user_id, fname, lname, username, password_hash)
+        VALUES (?, ?, ?, ?, ?)
+        ''', users_list)
+        conn.commit()
+    except Exception as e:
+        print(f"Ошибка при вставке данных в users: {e}")
+    
     conn.commit()# Сохраняет изменения для объекта соединения
     
     conn.close()
@@ -210,6 +227,10 @@ if __name__ == "__main__":
     cur.execute("SELECT * FROM markets_categories;")
     all_results = cur.fetchall()
     print('markets_categories результат \n', all_results) # 
+    
+    cur.execute("SELECT * FROM users;")
+    all_results = cur.fetchall()
+    print('users результат \n', all_results) # 
     
     conn.close()
     
