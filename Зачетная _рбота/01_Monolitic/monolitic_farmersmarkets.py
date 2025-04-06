@@ -106,7 +106,7 @@ def print_not_found():
 def print_exit():
     print("Выход")
 
-def print_table(my_list):
+def print_table(my_list): # Печать списка оформленного в таблицу
     # print(my_list)     
     # print(tabulate.tabulate(my_list))
     
@@ -146,6 +146,23 @@ def print_table(my_list):
     
     # Печатаем нижнюю границу таблицы
     print(make_separator())
+
+def print_paged_tuples(tuples_list, rows_per_page = 20): # Постраничный вывод кортежа
+    total_pages = (len(tuples_list) + rows_per_page - 1) // rows_per_page
+    
+    for page in range(total_pages):
+        start_idx = page * rows_per_page
+        end_idx = start_idx + rows_per_page
+        
+        print_table(tuples_list[start_idx:end_idx])
+        
+        if page < total_pages - 1:
+            user_input = input(f"\nСтраница {page + 1}/{total_pages}. Нажмите Enter для продолжения или 'q'+Enter для выхода...")
+            if user_input.lower() == 'q':
+                print("\nВывод прерван.")
+                return
+    
+    print(f"\nКонец данных. Всего страниц: {total_pages}.")
     
 def print_market_info(market_info):
     location = market_info[0][7:9]
@@ -501,7 +518,7 @@ if __name__ == "__main__":
             else:
                 print_login_error()
     def process_two():
-        print_table(show_all())
+        print_paged_tuples(show_all())
     def process_three():
         print_request_city()
         desired_city = input()
@@ -509,7 +526,7 @@ if __name__ == "__main__":
         desired_state = input()
         state_and_city_markets = search_markets_loc(desired_city, desired_state)
         if len(state_and_city_markets) != 0:
-            print_table(state_and_city_markets)
+            print_paged_tuples(state_and_city_markets)
         else:
             print_not_found()
     def process_four():
@@ -524,7 +541,7 @@ if __name__ == "__main__":
             return
         dist_markets = search_markets_dist(market, radius)
         if len(dist_markets) != 0:
-            print_table(dist_markets)
+            print_paged_tuples(dist_markets)
         else:
             print_not_found()
     def process_five():
