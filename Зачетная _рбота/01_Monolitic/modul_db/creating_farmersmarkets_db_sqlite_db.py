@@ -3,6 +3,7 @@
 import sqlite3 # Импортировать пакет для работы с SQLite
 import csv # Импортировать пакет для работы с csv файлами
 import os  # Для работы с путями
+from.import random_users
 
 NAME_DB = os.path.join(os.path.dirname(__file__), 'farmersmarkets.db')
 
@@ -181,11 +182,7 @@ def creating_or_reloading_db():
     # Заполнение таблицы users
     try:
         # Данные для вставки
-        users_list = [
-            (1, 'John', 'Doe', 'johndoe', '123'),
-            (2, 'Jane', 'Smith', 'janesmith', '456'),
-            (3, 'Bob', 'Johnson', 'bobj', '789'),
-            ]
+        users_list = random_users.users_list(500)
         # Вставляем данные
         cur.executemany('''
         INSERT INTO users (user_id, fname, lname, username, password_hash)
