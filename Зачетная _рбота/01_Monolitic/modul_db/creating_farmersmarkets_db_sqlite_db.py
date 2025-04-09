@@ -3,7 +3,14 @@
 import sqlite3 # Импортировать пакет для работы с SQLite
 import csv # Импортировать пакет для работы с csv файлами
 import os  # Для работы с путями
-from.import random_users
+try:
+    from . import random_users  # когда импортируется как модуль
+except ImportError:
+    import random_users  # когда запускается напрямую    
+try:
+    from . import random_review  # когда импортируется как модуль
+except ImportError:
+    import random_review  # когда запускается напрямую
 
 NAME_DB = os.path.join(os.path.dirname(__file__), 'farmersmarkets.db')
 
@@ -15,6 +22,7 @@ def creating_or_reloading_db():
     cities_csv = os.path.join(os.path.dirname(__file__), 'cities.csv')
     markets_csv = os.path.join(os.path.dirname(__file__), 'markets.csv')
     markets_categories_csv = os.path.join(os.path.dirname(__file__), 'markets_categories.csv')
+    users_list = random_users.users_list(500) # Создаем список юзеров (количество)
     
     conn = sqlite3.connect(NAME_DB) # Создает объект connection, а также новый файл farmersmarkets.db в рабочей директории, если такого файла нет.
 
@@ -181,8 +189,6 @@ def creating_or_reloading_db():
         
     # Заполнение таблицы users
     try:
-        # Данные для вставки
-        users_list = random_users.users_list(500)
         # Вставляем данные
         cur.executemany('''
         INSERT INTO users (user_id, fname, lname, username, password_hash)
