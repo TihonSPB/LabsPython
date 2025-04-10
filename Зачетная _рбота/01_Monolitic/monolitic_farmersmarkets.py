@@ -2,7 +2,6 @@
 
 #######################################################################################
 # Представление (View) Отвечает за вывод пользователю
-# import tabulate #??? Вылетает в консоли
 
 MINS_IN_HOUR = 60
 SECS_IN_MIN = 60
@@ -18,6 +17,11 @@ def degree_minutes_seconds(location): # Разбивка локации на г�
     return degrees, minutes, seconds # Кортеж
 
 def format_location(location): # Вывод градусов в формате (025°44'16.00"N,080°13'29.17"W)
+    
+    # Если location пустой (None или пустой список/кортеж), возвращаем пустую строку
+    if not location[0] or not location[1] or len(location) < 2:
+        return "отсутствуют"
+    
     # Определяем полушарие 
     ns = ""
     if location[0] < 0:
@@ -359,11 +363,30 @@ def market_search_by_id(cur, id_market):
         ''', (id_market, ))
     return cur.fetchall()
 
+# Поиск рецензий и рейтингов по id рынка
+@db_connection
+def reviews_search_by_id_market(cur, id_market):
+    cur.execute('''
+        SELECT 
+            u.fname, u.lname, r.score, r.review, r.date_time
+        FROM 
+            reviews r
+        JOIN users u ON r.user_id = u.user_id
+        WHERE r.market_id = ?
+        ORDER BY r.date_time DESC;
+        ''', (id_market, ))
+    return cur.fetchall()
+
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///1 Тестовая
 # Получение пользователей
 @db_connection
 def user_test(cur):
     cur.execute("SELECT * FROM users;")
+    return cur.fetchall()
+
+@db_connection
+def reviews_test(cur):
+    cur.execute("SELECT * FROM reviews;")
     return cur.fetchall()
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///1 Тестовая
 
@@ -495,7 +518,8 @@ if __name__ == "__main__":
     # print(market_search_by_id("1021728"))
     # print_table(search_markets_loc("Chicago", "IL"))
     # print(search_markets_loc("San Francisco", "CA"))
-    print_table(user_test())
+    # print_table(user_test())
+    # print_table(reviews_test())
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая    
     # Итог тестирования
     if (failed == 0):
@@ -546,9 +570,11 @@ if __name__ == "__main__":
             print_not_found()
     def process_five():
         print_request_id()
-        market_info = market_search_by_id(input())
+        market_id = input()
+        market_info = market_search_by_id(market_id)
         if len(market_info) != 0:
             print_market_info(market_info)
+            print_paged_tuples(reviews_search_by_id_market(market_id))
         else:
             print_not_found()
         

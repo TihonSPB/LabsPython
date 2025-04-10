@@ -24,6 +24,16 @@ def creating_or_reloading_db():
     markets_categories_csv = os.path.join(os.path.dirname(__file__), 'markets_categories.csv')
     users_list = random_users.users_list(500) # Создаем список юзеров (количество)
     
+    # Список всех id пользователей
+    user_ids = [user[0] for user in users_list] 
+    #  Список всех id рынков
+    with open(markets_csv, mode='r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        next(reader)  # Пропускаем заголовок
+        market_ids = [int(row[0]) for row in reader]  # market_id    
+
+    review_list = random_review.generate_reviews(user_ids, market_ids)# Создаем список рецензий
+    
     conn = sqlite3.connect(NAME_DB) # Создает объект connection, а также новый файл farmersmarkets.db в рабочей директории, если такого файла нет.
 
     cur = conn.cursor() # Создать курсор
@@ -194,10 +204,22 @@ def creating_or_reloading_db():
         INSERT INTO users (user_id, fname, lname, username, password_hash)
         VALUES (?, ?, ?, ?, ?)
         ''', users_list)
-        conn.commit()
+        # conn.commit()
     except Exception as e:
         print(f"Ошибка при вставке данных в users: {e}")
     
+    # Заполнение таблицы reviews
+    try:
+        # Вставляем данные
+        cur.executemany('''
+        INSERT INTO reviews (review_id, user_id, market_id, date_time, score, review)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', review_list)
+        # conn.commit()
+        
+    except Exception as e:
+        print(f"Ошибка при вставке данных в reviews: {e}")
+        
     conn.commit()# Сохраняет изменения для объекта соединения
     
     conn.close()
@@ -234,6 +256,10 @@ if __name__ == "__main__":
     cur.execute("SELECT * FROM users;")
     all_results = cur.fetchall()
     print('users результат \n', all_results) # 
+    
+    cur.execute("SELECT * FROM reviews;")
+    all_results = cur.fetchall()
+    print('reviews результат \n', all_results) # 
     
     conn.close()
     
