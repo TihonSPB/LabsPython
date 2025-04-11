@@ -32,7 +32,7 @@ def format_location(location): # Вывод градусов в формате (
     ew = ""
     if location[1] < 0:
         ew = 'W'
-    elif location[0] > 0:
+    elif location[1] > 0:
         ew = 'E'
 
     format_string = '{:03d}\xb0{:0d}\'{:.2f}"' # Градусы{:03d}-(03-3 знака; d-целое число); \xb0-символ "°"; Минуты{:0d}\'-0 будет сохраннен; Секунды{:.2f}"-Дробное с двумя знаками после запятой.
@@ -259,13 +259,16 @@ def show_all(cur):
             markets.market_name,
             cities.city,
             states.state_abbr,
-            markets.zip
+            markets.zip,
+            COALESCE(ROUND(AVG(r.score), 1), '-') AS avg_rating
         FROM 
             markets
         JOIN 
             cities ON markets.city = cities.city_id
         JOIN 
             states ON markets.state = states.state_id
+        LEFT JOIN 
+            reviews r ON markets.market_id = r.market_id
         GROUP BY 
             markets.market_id, markets.market_name, cities.city, states.state_abbr, markets.zip;''')
     return cur.fetchall()
@@ -279,14 +282,19 @@ def search_markets_loc(cur, city, state):
             m.market_name,
             c.city,
             s.state_abbr,
-            m.zip
+            m.zip,
+            COALESCE(ROUND(AVG(r.score), 1), '-') AS avg_rating
         FROM 
             markets m
         JOIN 
             cities c ON m.city = c.city_id
         JOIN 
             states s ON m.state = s.state_id
+        LEFT JOIN 
+            reviews r ON m.market_id = r.market_id
         WHERE lower(c.city) = ? AND lower(s.state_abbr) = ?
+        GROUP BY 
+            m.market_id, m.market_name, c.city, s.state_abbr, m.zip
         ''', (city.lower(), state.lower()))
     return cur.fetchall()
 
@@ -309,6 +317,7 @@ def search_markets_dist(cur, id_market, my_dist = 30):
             cities.city,
             states.state_abbr,
             markets.zip,
+            COALESCE(ROUND(AVG(r.score), 1), '-') AS avg_rating,
             markets.lat,
             markets.lon
         FROM 
@@ -317,6 +326,8 @@ def search_markets_dist(cur, id_market, my_dist = 30):
             cities ON markets.city = cities.city_id
         JOIN 
             states ON markets.state = states.state_id
+        LEFT JOIN 
+            reviews r ON markets.market_id = r.market_id
         GROUP BY 
             markets.market_id, markets.market_name, cities.city, states.state_abbr, markets.zip, markets.lat, markets.lon;''')
     all_markets = cur.fetchall()
@@ -427,7 +438,7 @@ class AuthController:
         #Обрабатывает процесс входа пользователя
         print_request_username()
         username = input()
-        print_request_password()
+        # print_request_password()
         password = getpass()  # Скрытый ввод пароля
         
         user = self.get_user(username)  # Ищем пользователя в БД
@@ -478,14 +489,14 @@ if __name__ == "__main__":
         failed += 1
     
     # тест 2 Проверка фермерского рынка по городу и штату
-    if (search_markets_loc("San Francisco", "CA")==[(1009080, 'San Francisco Certified Alemany Farmers Market', 'San Francisco', 'CA', 94110), (1020193, 'Ferry Plaza Farmers Market', 'San Francisco', 'CA', 94111), (1020195, 'Mission Community Market', 'San Francisco', 'CA', 94111)]):
+    if ([t[:-1] for t in search_markets_loc("San Francisco", "CA")]==[(1009080, 'San Francisco Certified Alemany Farmers Market', 'San Francisco', 'CA', 94110), (1020193, 'Ferry Plaza Farmers Market', 'San Francisco', 'CA', 94111), (1020195, 'Mission Community Market', 'San Francisco', 'CA', 94111)]):
         passed += 1
     else:
         print_msg("ОШИБКА тест 2.")
         failed += 1
     
     # тест 3 Проверка
-    if (search_markets_loc("san francisco", "ca")==[(1009080, 'San Francisco Certified Alemany Farmers Market', 'San Francisco', 'CA', 94110), (1020193, 'Ferry Plaza Farmers Market', 'San Francisco', 'CA', 94111), (1020195, 'Mission Community Market', 'San Francisco', 'CA', 94111)]):
+    if ([t[:-1] for t in search_markets_loc("san francisco", "ca")]==[(1009080, 'San Francisco Certified Alemany Farmers Market', 'San Francisco', 'CA', 94110), (1020193, 'Ferry Plaza Farmers Market', 'San Francisco', 'CA', 94111), (1020195, 'Mission Community Market', 'San Francisco', 'CA', 94111)]):
         passed += 1
     else:
         print_msg("ОШИБКА тест 3.")
@@ -517,7 +528,7 @@ if __name__ == "__main__":
     # print (search_markets_dist("1011689"))    
     # print(market_search_by_id("1021728"))
     # print_table(search_markets_loc("Chicago", "IL"))
-    # print(search_markets_loc("San Francisco", "CA"))
+    # print([t[:-1] for t in search_markets_loc("San Francisco", "CA")])
     # print_table(user_test())
     # print_table(reviews_test())
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая    
