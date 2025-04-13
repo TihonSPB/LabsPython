@@ -22,7 +22,7 @@ def creating_or_reloading_db():
     cities_csv = os.path.join(os.path.dirname(__file__), 'cities.csv')
     markets_csv = os.path.join(os.path.dirname(__file__), 'markets.csv')
     markets_categories_csv = os.path.join(os.path.dirname(__file__), 'markets_categories.csv')
-    users_list = random_users.users_list(500) # Создаем список юзеров (количество)
+    users_list = random_users.users_list(1000) # Создаем список юзеров (количество)
     
     # Список всех id пользователей
     user_ids = [user[0] for user in users_list] 

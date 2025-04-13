@@ -5,6 +5,7 @@
 
 MINS_IN_HOUR = 60
 SECS_IN_MIN = 60
+ROW_COUNT = 20
 
 def degree_minutes_seconds(location): # Разбивка локации на градусы, минуты, секунды
 
@@ -52,7 +53,7 @@ def print_msg(msg):
     print(horizontal_frame + vertical_indentation + info_msg + vertical_indentation + horizontal_frame + "\n")
 
 def print_request_username():
-    print("Введите имя пользователя: ", end='')
+    print("\nВведите имя пользователя: ", end='')
     
 def print_request_password():
     print("Введите пароль: ", end='')
@@ -69,22 +70,26 @@ def print_login():
 def print_login_error():
     print("Ошибка входа!")
     
-def print_prompt():    
-    print("""Команды: 
+def print_prompt(user):
+    name, lastname, username = user
+    auth_str = ""
+    in_out_str = "Вход"
+    if username:
+        auth_str = f"{name} {lastname} |{username}| "
+        in_out_str = "Выход пользователя"
+    
+    print(f"""{auth_str}Команды: 
     
     D - Удалить все изменения, внесенные в базу данных.
-    1 - Вход/Выход пользователя
-    2 - Просмотр списка всех фермерских рынков в стране (включая рецензии и рейтинги).
+    1 - {in_out_str} {username}
+    2 - Просмотр списка всех фермерских рынков в стране.
     3 - Поиск фермерского рынка по городу и штату.
     4 - Поиск фермерского рынка по id с возможностью ограничить зону поиска дальностью.
-    5 - Подробная информация о рынке.
+    5 - Подробная информация о рынке.(включая рецензии и рейтинги)
+    6 - Оценить рынок, оставить отзыв
     0 - Закрыть.
           
 Введите команду => """, end='')
-
-    
-# def print_command(command):
-#     print(command)
 
 def print_invalid_command():
     print("Неверная команда")
@@ -110,10 +115,8 @@ def print_not_found():
 def print_exit():
     print("Выход")
 
-def print_table(my_list): # Печать списка оформленного в таблицу
-    # print(my_list)     
-    # print(tabulate.tabulate(my_list))
-    
+def print_table(my_list, headers=None): # Печать списка оформленного в таблицу
+        
     if not my_list:
         return
     # Определяем количество столбцов (по первому кортежу)
@@ -124,49 +127,72 @@ def print_table(my_list): # Печать списка оформленного �
         if len(t) != num_columns:
             raise ValueError("Все кортежи должны иметь одинаковое количество элементов")
     
-    # Находим максимальную ширину для каждого столбца
+    # Если заголовки переданы, проверяем их длину
+    if headers is not None:
+        if len(headers) != num_columns:
+            raise ValueError("Количество заголовков должно совпадать с количеством столбцов")
+    
+    # Находим максимальную ширину для каждого столбца (учитывая заголовки, если они есть)
     column_widths = [0] * num_columns
     for t in my_list:
         for i in range(num_columns):
             column_widths[i] = max(column_widths[i], len(str(t[i])))
     
+    # Если есть заголовки, проверяем их ширину
+    if headers is not None:
+        for i in range(num_columns):
+            column_widths[i] = max(column_widths[i], len(str(headers[i])))
+            
     # Функция для создания разделительной строки
     def make_separator():
         return " ".join("-" * width for width in column_widths)
     
-    # Печатаем верхнюю границу таблицы
-    print(make_separator())
-    
-    # Печатаем каждый кортеж с выравниванием
-    for t in my_list:
-        formatted_items = []
+    # Функция для форматирования строки (с выравниванием по левому краю)
+    def format_row(row_items):
+        formatted = []
         for i in range(num_columns):
             # Форматируем каждый элемент с учетом максимальной ширины столбца
             # str(t[i]) - Преобразует элемент кортежа в строку
             # :< - Спецификатор форматирования ":" - начало блока форматирования "<" - выравнивание по левому краю
             # column_widths[i] - Минимальная ширина. Строка дополнена пробелами справа если короче
-            formatted_items.append(f"{str(t[i]):<{column_widths[i]}}")
-        print(" ".join(formatted_items))
+            formatted.append(f"{str(row_items[i]):<{column_widths[i]}}")
+        return (" ".join(formatted))
     
+    # Печатаем верхнюю границу таблицы
+    print(make_separator())
+    
+    # Если есть заголовки, печатаем их
+    if headers is not None:
+        print(format_row(headers))
+        print(make_separator())
+    
+    # Печатаем строки таблицы
+    for t in my_list:
+        print(format_row(t))
+        
     # Печатаем нижнюю границу таблицы
     print(make_separator())
 
-def print_paged_tuples(tuples_list, rows_per_page = 20): # Постраничный вывод кортежа
+def print_paged_tuples(tuples_list, headers=None, rows_per_page = ROW_COUNT): # Постраничный вывод кортежа
     total_pages = (len(tuples_list) + rows_per_page - 1) // rows_per_page
     
     for page in range(total_pages):
         start_idx = page * rows_per_page
         end_idx = start_idx + rows_per_page
         
-        print_table(tuples_list[start_idx:end_idx])
+        print_table(tuples_list[start_idx:end_idx], headers)
         
         if page < total_pages - 1:
-            user_input = input(f"\nСтраница {page + 1}/{total_pages}. Нажмите Enter для продолжения или 'q'+Enter для выхода...")
+            user_input = input(f"Страница {page + 1}/{total_pages}. Нажмите Enter для продолжения или 'q'+Enter для выхода...\n")
             if user_input.lower() == 'q':
-                print("\nВывод прерван.")
+                print("Вывод прерван.")
                 return
     
-    print(f"\nКонец данных. Всего страниц: {total_pages}.")
+    print(f"Конец данных. Всего страниц: {total_pages}.")
+    
+def primt_markets(tuples_list):
+    headers = ["ID", "Наименование", "Город", "Штат", "Индекс", "Рейтинг"]
+    print_paged_tuples(tuples_list, headers)
     
 def print_market_info(market_info):
     location = market_info[0][7:9]
@@ -391,7 +417,7 @@ def reviews_search_by_id_market(cur, id_market):
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///1 Тестовая
 # Получение пользователей
 @db_connection
-def user_test(cur):
+def users_all(cur):
     cur.execute("SELECT * FROM users;")
     return cur.fetchall()
 
@@ -475,6 +501,7 @@ class AuthController:
 #######################################################################################
 # Контроллер (Controller)
 # Взаимодействует с пользователем (Принимает ввод от пользователя). Соединяет модель и представление
+import random
 
 if __name__ == "__main__":    
 #--------------------------------------------------------------------------------------
@@ -529,7 +556,7 @@ if __name__ == "__main__":
     # print(market_search_by_id("1021728"))
     # print_table(search_markets_loc("Chicago", "IL"))
     # print([t[:-1] for t in search_markets_loc("San Francisco", "CA")])
-    # print_table(user_test())
+    # print_table(user_users_all())
     # print_table(reviews_test())
 #???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая    
     # Итог тестирования
@@ -538,7 +565,6 @@ if __name__ == "__main__":
     else:
         print(f'Провалено {failed} тестов.{passed} успешно пройдены') 
         
-
 #--------------------------------------------------------------------------------------    
     auth = AuthController()
     def new_db():
@@ -548,12 +574,22 @@ if __name__ == "__main__":
             auth.logout()
             print_logout()
         else:
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
+            print("\nДля входа воспользуйтесь одной из учетных записей: ")
+            tuples_list = users_all()
+            # Выбираем случайные кортежи
+            random_tuples = random.sample(tuples_list, min(3, len(tuples_list)))
+            # Оставляем только два последних элемента в каждом кортеже
+            result = [t[-2:] for t in random_tuples]
+            
+            print_paged_tuples(result, ["Имя пользователя", "Пароль"])
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
             if auth.login():
                 print_login()
             else:
                 print_login_error()
     def process_two():
-        print_paged_tuples(show_all())
+        primt_markets(show_all())
     def process_three():
         print_request_city()
         desired_city = input()
@@ -561,7 +597,7 @@ if __name__ == "__main__":
         desired_state = input()
         state_and_city_markets = search_markets_loc(desired_city, desired_state)
         if len(state_and_city_markets) != 0:
-            print_paged_tuples(state_and_city_markets)
+            primt_markets(state_and_city_markets)
         else:
             print_not_found()
     def process_four():
@@ -576,7 +612,7 @@ if __name__ == "__main__":
             return
         dist_markets = search_markets_dist(market, radius)
         if len(dist_markets) != 0:
-            print_paged_tuples(dist_markets)
+            primt_markets(dist_markets)
         else:
             print_not_found()
     def process_five():
@@ -588,14 +624,16 @@ if __name__ == "__main__":
             print_paged_tuples(reviews_search_by_id_market(market_id))
         else:
             print_not_found()
+    def test_funk():
+        pass
         
     command = ""
         
     while command != '0':
         
-        print_prompt()
+        print_prompt([auth.name, auth.lastname, auth.username])
         command = input()
-        # print_command(command)
+        
         command = command.strip().lower()
         if command == 'd':
             new_db()
@@ -609,6 +647,8 @@ if __name__ == "__main__":
             process_four()
         elif command == '5':
             process_five()
+        elif command == '6':
+            test_funk()
         elif command != '0':
             print_invalid_command()
         print_newline()
