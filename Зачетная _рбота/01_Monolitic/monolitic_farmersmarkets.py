@@ -70,6 +70,9 @@ def print_login():
 def print_login_error():
     print("Ошибка входа!")
     
+def print_require_auth():
+    print("Для этого действия требуется войти в систему")
+    
 def print_prompt(user):
     name, lastname, username = user
     auth_str = ""
@@ -190,7 +193,7 @@ def print_paged_tuples(tuples_list, headers=None, rows_per_page = ROW_COUNT): # 
     
     print(f"Конец данных. Всего страниц: {total_pages}.")
     
-def primt_markets(tuples_list):
+def print_markets(tuples_list):
     headers = ["ID", "Наименование", "Город", "Штат", "Индекс", "Рейтинг"]
     print_paged_tuples(tuples_list, headers)
     
@@ -490,8 +493,8 @@ class AuthController:
 
     def require_auth(self):
         # Проверяет авторизацию, если нет - предлагает войти
-        if not self.current_user:
-            print("Для этого действия требуется войти в систему")
+        if not self.current_user:            
+            print_require_auth()
             if self.login():  # Предлагаем войти
                 return True  # Пользователь успешно авторизовался
             return False  # Пользователь не смог войти
@@ -566,6 +569,17 @@ if __name__ == "__main__":
         print(f'Провалено {failed} тестов.{passed} успешно пройдены') 
         
 #--------------------------------------------------------------------------------------    
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
+    def user_login_password():
+        print("\nДля входа воспользуйтесь одной из учетных записей: ")
+        tuples_list = users_all()
+        # Выбираем случайные кортежи
+        random_tuples = random.sample(tuples_list, min(3, len(tuples_list)))
+        # Оставляем только два последних элемента в каждом кортеже
+        result = [t[-2:] for t in random_tuples]
+        
+        print_table(result, ["Имя пользователя", "Пароль"])
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
     auth = AuthController()
     def new_db():
         database_reset()
@@ -574,22 +588,15 @@ if __name__ == "__main__":
             auth.logout()
             print_logout()
         else:
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
-            print("\nДля входа воспользуйтесь одной из учетных записей: ")
-            tuples_list = users_all()
-            # Выбираем случайные кортежи
-            random_tuples = random.sample(tuples_list, min(3, len(tuples_list)))
-            # Оставляем только два последних элемента в каждом кортеже
-            result = [t[-2:] for t in random_tuples]
-            
-            print_paged_tuples(result, ["Имя пользователя", "Пароль"])
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///4 Тестовая
+            user_login_password()
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///4 Тестовая
             if auth.login():
                 print_login()
             else:
                 print_login_error()
     def process_two():
-        primt_markets(show_all())
+        print_markets(show_all())
     def process_three():
         print_request_city()
         desired_city = input()
@@ -597,7 +604,7 @@ if __name__ == "__main__":
         desired_state = input()
         state_and_city_markets = search_markets_loc(desired_city, desired_state)
         if len(state_and_city_markets) != 0:
-            primt_markets(state_and_city_markets)
+            print_markets(state_and_city_markets)
         else:
             print_not_found()
     def process_four():
@@ -612,7 +619,7 @@ if __name__ == "__main__":
             return
         dist_markets = search_markets_dist(market, radius)
         if len(dist_markets) != 0:
-            primt_markets(dist_markets)
+            print_markets(dist_markets)
         else:
             print_not_found()
     def process_five():
@@ -624,8 +631,13 @@ if __name__ == "__main__":
             print_paged_tuples(reviews_search_by_id_market(market_id))
         else:
             print_not_found()
-    def test_funk():
-        pass
+    def process_six():
+        if not auth.require_auth(): # Проверка авторизации
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///5 Тестовая
+            user_login_password()
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///5 Тестовая
+            return
+        print("Выполнение функции!")
         
     command = ""
         
@@ -648,7 +660,7 @@ if __name__ == "__main__":
         elif command == '5':
             process_five()
         elif command == '6':
-            test_funk()
+            process_six()
         elif command != '0':
             print_invalid_command()
         print_newline()
