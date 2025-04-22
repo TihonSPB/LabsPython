@@ -1,19 +1,44 @@
 ## Системные требования:  
 - Python 3  
 
-## Установка//Запуск приложения:  
+## Установка/Запуск приложения:  
 1. Скачайте содержимое папки 01_Monolitic  
-> 01_Monolitic  
->> modul_db  
->>> creating_farmersmarkets_db_sqlite_db.py  
->>> random_review.py  
->>> random_users.py  
->>> categories.csv  
->>> cities.csv  
->>> markets.csv  
->>> markets_categories.csv  
->>> states.csv  
->> monolitic_farmersmarkets.py  
+```mermaid
+graph TD;
+A[01_Monolitic]
+B[modul_db]
+C[monolitic_farmersmarkets.py]
+D[creating_farmersmarkets_db_sqlite_db.py]
+E[random_review.py]
+F[random_users.py]
+G[categories.csv]
+H[cities.csv]
+I[markets.csv]
+J[markets_categories.csv]
+K[states.csv]
+	
+A-->B;
+A-->C;
+B-->D;
+B-->E;
+B-->F;
+B-->G;
+B-->H;
+B-->I;
+B-->J;
+B-->K;
+```  
+	> 01_Monolitic  
+	>> modul_db  
+	>>> creating_farmersmarkets_db_sqlite_db.py  
+	>>> random_review.py  
+	>>> random_users.py  
+	>>> categories.csv  
+	>>> cities.csv  
+	>>> markets.csv  
+	>>> markets_categories.csv  
+	>>> states.csv  
+	>> monolitic_farmersmarkets.py  
 2. Запустите приложение monolitic_farmersmarkets.py.  
 > [!important]
 > При первом запуске будет сформирована база данных SQLite в папке modul_db  
@@ -41,9 +66,9 @@
 ```  
 
 ## Работта с программой (команды):  
-- d - Удалить все изменения, внесенные в базу данных.
+- d - Удалить все изменения, внесенные в базу данных.  
   Удаляет все изменения, обновляет случайные учетные записи, оценки и рецензии рынков. Авторизация не требуется.  
-- 1 – Вход // Выход 
+- 1 – Вход / Выход  
   Для входа программа предложит три случайно выбранных в базе данных учетных записи. Ведите запрашиваемые данные в консоль.  
 Пример вывода:  
 ```  
@@ -71,7 +96,7 @@ ID      Наименование                                                
 - 3 - Поиск фермерского рынка по городу и штату. Авторизация не требуется.  
 - 4 - Поиск фермерского рынка по id с возможностью ограничить зону поиска дальностью. Авторизация не требуется.  
 - 5 - Подробная информация о рынке.(включая рецензии и рейтинги). Авторизация не требуется.  
-- 6 - Оценить рынок, оставить отзыв.
+- 6 - Оценить рынок, оставить отзыв.  
   Если вы не вошли в учетную запись программа предложит это сделать. Требуется авторизация.
 - 0 – Закрыть.  
   Закрывает программу. Авторизация не требуется.  
