@@ -28,21 +28,10 @@ B-->I;
 B-->J;
 B-->K;
 ```  
-	> 01_Monolitic  
-	>> modul_db  
-	>>> creating_farmersmarkets_db_sqlite_db.py  
-	>>> random_review.py  
-	>>> random_users.py  
-	>>> categories.csv  
-	>>> cities.csv  
-	>>> markets.csv  
-	>>> markets_categories.csv  
-	>>> states.csv  
-	>> monolitic_farmersmarkets.py  
 2. Запустите приложение monolitic_farmersmarkets.py.  
-> [!important]
-> При первом запуске будет сформирована база данных SQLite в папке modul_db  
-```  
+  > [!important]
+  > При первом запуске будет сформирована база данных SQLite в папке modul_db  
+  >```  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                           !
 !  Файл базы данных создан: <Путь>\01_Monolitic\modul_db\farmersmarkets.db  !
