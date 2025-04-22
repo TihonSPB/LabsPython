@@ -112,6 +112,21 @@ def print_request_id():
 def print_request_radius():
     print("Введите радиус поиска рынков, в милях => ", end='')
 
+def print_request_score():
+    print("Введите оценку рынка (от 1 до 5) => ", end='')
+    
+def print_error_score():
+    print("Ошибка: оценка должна быть числом от 1 до 5")
+    
+def print_request_review():
+    print("Введите ваш отзыв:")
+    
+def print_update_review():
+    print("Ваш отзыв был обновлен!")
+    
+def print_add_review():
+    print("Спасибо за ваш отзыв!")
+
 def print_not_found():
     print("Не найдено!")
 
@@ -194,7 +209,7 @@ def print_paged_tuples(tuples_list, headers=None, rows_per_page = ROW_COUNT): # 
     print(f"Конец данных. Всего страниц: {total_pages}.")
     
 def print_markets(tuples_list):
-    headers = ["ID", "Наименование", "Город", "Штат", "Индекс", "Рейтинг"]
+    headers = ["ID", "Наименование", "Город", "Штат", "Индекс", "*"]
     print_paged_tuples(tuples_list, headers)
     
 def print_market_info(market_info):
@@ -208,6 +223,8 @@ def print_market_info(market_info):
 Координаты: {format_location(location)}
 --------------------
 Категории продуктов: {market_info[0][9]}""")
+
+
     
 #######################################################################################
 # Утилита (Util) Универсальная программа для расчета расстояния на поверхности земли
@@ -436,13 +453,40 @@ def user_by_username(cur, username):
     cur.execute("SELECT * FROM users WHERE username = ?", (username,))
     return cur.fetchone()  # Получаем первую найденную запись
 
+# Проверка, есть ли уже отзыв от пользователя для рынка
+@db_connection
+def check_existing_review(cur, user_id, market_id):
+    cur.execute('''
+    SELECT review_id FROM reviews 
+    WHERE user_id = ? AND market_id = ?
+    ''', (user_id, market_id))    
+    return cur.fetchone() # Возвращает None, если отзыва нет, или кортеж с данными
+
 #--------------------------------------------------------------------------------------
 # Редактирование данных
 
+# Обновляет существующий отзыв
+@db_connection
+def update_review(cur, review_id, score, review, date_time):
+    cur.execute('''
+    UPDATE reviews 
+    SET score = ?, review = ?, date_time = ?
+    WHERE review_id = ?
+    ''', (score, review, date_time, review_id))
+
+# Добавляет новый отзыв    
+@db_connection
+def add_review(cur, user_id, market_id, date_time, score, review):
+    cur.execute('''
+    INSERT INTO reviews (user_id, market_id, date_time, score, review)
+    VALUES (?, ?, ?, ?, ?)
+    ''', (user_id, market_id, date_time, score, review))
+    
 #######################################################################################
 # Класс AuthController (Ядро аутентификации)
 from getpass import getpass  # Для безопасного ввода пароля
 # from werkzeug.security import generate_password_hash, check_password_hash
+import random
 
 class AuthController:
     def __init__(self):
@@ -464,6 +508,18 @@ class AuthController:
         return stored_hash == password  # Временная заглушка!
 
     def login(self):
+        
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая
+        print("\nДля входа воспользуйтесь одной из учетных записей: ")
+        tuples_list = users_all()
+        # Выбираем случайные кортежи
+        random_tuples = random.sample(tuples_list, min(3, len(tuples_list)))
+        # Оставляем только два последних элемента в каждом кортеже
+        result = [t[-2:] for t in random_tuples]
+        
+        print_table(result, ["Имя пользователя", "Пароль"])
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая
+        
         #Обрабатывает процесс входа пользователя
         print_request_username()
         username = input()
@@ -504,7 +560,7 @@ class AuthController:
 #######################################################################################
 # Контроллер (Controller)
 # Взаимодействует с пользователем (Принимает ввод от пользователя). Соединяет модель и представление
-import random
+from datetime import datetime
 
 if __name__ == "__main__":    
 #--------------------------------------------------------------------------------------
@@ -553,7 +609,7 @@ if __name__ == "__main__":
         print_msg("ОШИБКА тест 6.")
         failed += 1
     
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая         
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая         
     # print (search_markets_dist("Привет мир!"))
     # print (search_markets_dist("1011689"))    
     # print(market_search_by_id("1021728"))
@@ -561,7 +617,7 @@ if __name__ == "__main__":
     # print([t[:-1] for t in search_markets_loc("San Francisco", "CA")])
     # print_table(user_users_all())
     # print_table(reviews_test())
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///2 Тестовая    
+#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая    
     # Итог тестирования
     if (failed == 0):
         print(f'Все тесты ({passed}) успешно пройдены')
@@ -569,28 +625,16 @@ if __name__ == "__main__":
         print(f'Провалено {failed} тестов.{passed} успешно пройдены') 
         
 #--------------------------------------------------------------------------------------    
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
-    def user_login_password():
-        print("\nДля входа воспользуйтесь одной из учетных записей: ")
-        tuples_list = users_all()
-        # Выбираем случайные кортежи
-        random_tuples = random.sample(tuples_list, min(3, len(tuples_list)))
-        # Оставляем только два последних элемента в каждом кортеже
-        result = [t[-2:] for t in random_tuples]
-        
-        print_table(result, ["Имя пользователя", "Пароль"])
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///3 Тестовая
+
     auth = AuthController()
     def new_db():
+        auth.logout()
         database_reset()
     def process_one():
         if auth.current_user:
             auth.logout()
             print_logout()
         else:
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///4 Тестовая
-            user_login_password()
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///4 Тестовая
             if auth.login():
                 print_login()
             else:
@@ -609,7 +653,7 @@ if __name__ == "__main__":
             print_not_found()
     def process_four():
         print_request_id()
-        market = input()
+        market_id = input()
         print_request_radius()
         radius = input()
         try:
@@ -617,7 +661,7 @@ if __name__ == "__main__":
         except ValueError:
             print_not_found()
             return
-        dist_markets = search_markets_dist(market, radius)
+        dist_markets = search_markets_dist(market_id, radius)
         if len(dist_markets) != 0:
             print_markets(dist_markets)
         else:
@@ -633,11 +677,52 @@ if __name__ == "__main__":
             print_not_found()
     def process_six():
         if not auth.require_auth(): # Проверка авторизации
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///5 Тестовая
-            user_login_password()
-#???NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///NEW\\\NEW///5 Тестовая
             return
-        print("Выполнение функции!")
+        print_request_id()
+        market_id = input()
+        market_info = market_search_by_id(market_id)
+        if len(market_info) != 0:
+            # Запрашиваем оценку (1-5)
+            print_request_score()
+            score = input().strip()
+            # Проверяем, что введена цифра от 1 до 5
+            if score.isdigit() and 1 <= int(score) <= 5:
+                score = int(score)  # Преобразуем в число
+            else:
+                print_error_score()
+                return
+            # Запрашиваем отзыв (необязательный)
+            review_text = ""  # По умолчанию отзыва нет
+            print_request_review()
+            # review_text = input().strip()
+            # if not review_text:  # Если пользователь ничего не ввел
+            #     review_text = ""
+            review_text = input().strip() or ""
+            # Получаем текущую дату и время
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            # Проверяем, есть ли уже отзыв этого пользователя для этого рынка
+            existing_review = check_existing_review(auth.current_user, market_id)
+            if existing_review:
+            # Обновляем существующий отзыв
+                update_review(
+                    review_id=existing_review[0],  # ID существующего отзыва
+                    score=score,
+                    review=review_text,
+                    date_time=current_date
+                )
+                print_update_review()
+            else:
+            # Создаем новый отзыв
+                add_review(
+                    user_id=auth.current_user,
+                    market_id=market_id,
+                    date_time=current_date,
+                    score=score,
+                    review=review_text
+                )
+                print_add_review()
+        else:
+            print_not_found()
         
     command = ""
         
