@@ -1,0 +1,37 @@
+<!-- Базовый шаблон. Это основа для других страниц сайта. Содержит общую структуру, которая будет наследоваться-->
+<!-- Шаблонизатор Jinja2 (теги % %):
+    % block % - определяет заменяемые секции
+    % endblock % - закрывает блок -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Подключение CSS.
+    Используется специальная функция Flask для корректного формирования пути. -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- url_for() - специальная функция Flask для генерации URL
+    - Параметры:
+      * 'static' - указывает на стандартную папку static в Flask
+      * filename='css/main.css' - путь к файлу относительно папки static -->
+    <!-- Структура проекта:
+    my_app/
+    ├── app.py
+    ├── static/
+    │   └── css/
+    │       └── main.css  # Именно этот файл будет подключен
+    └── templates/
+        └── base.html 
+    -->
+
+    <!-- Динамический заголовок страницы:
+         Блок title, который будет переопределяться в дочерних шаблонах -->
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <!-- Основной контент страницы:
+         Блок body, который будет заполняться в дочерних шаблонах -->
+    {% block body %}{% endblock %}
+</body>
+</html>
