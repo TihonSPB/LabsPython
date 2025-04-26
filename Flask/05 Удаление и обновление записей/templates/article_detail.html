@@ -1,0 +1,30 @@
+<!-- Шаблонизатор Jinja2 (теги % %):
+    % block % - определяет заменяемые секции
+    % endblock % - закрывает блок -->
+
+<!-- extends - шаблон наследует структуру от base.html.
+Содержимое будет вставлено в соответствующие блоки родительского шаблона. 
+-->
+{% extends 'base.html' %}
+
+<!-- Установка динамического заголовка страницы -->
+{% block title %}
+{{ article.title }}
+{% endblock %}
+
+{% block body %}
+    <h1>{{ article.title }}</h1>
+    
+    <div class="h-100 p-5 bg-body-tertiary border rounded-3">  
+      <!-- Полный текст статьи -->    
+      <p>{{ article.text }}</p>
+      <!-- 
+        element.date - объект datetime из модели
+        .date() - метод, который возвращает только дату (без времени) -->
+      <p><b>Дата публикации: {{ article.date.date() }}</b></p>
+      <a href="/articles/{{ article.id }}/update" class="btn btn-outline-primary">Редактировать</a>
+      <a href="/articles/{{ article.id }}/delete" class="btn btn-outline-danger">Удалить</a>
+    </div>
+    <br>
+      
+{% endblock %}
