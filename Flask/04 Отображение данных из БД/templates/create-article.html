@@ -1,0 +1,34 @@
+<!-- Шаблонизатор Jinja2 (теги % %):
+    % block % - определяет заменяемые секции
+    % endblock % - закрывает блок -->
+
+<!-- extends - шаблон наследует структуру от base.html.
+Содержимое будет вставлено в соответствующие блоки родительского шаблона. 
+-->
+{% extends 'base.html' %}
+
+{% block title %}Новая статья{% endblock %}
+
+{% block body %}
+    <h1>Написать статью</h1>
+    <!-- method="post" - отправка данных POST-запросом -->
+    <!-- Без указания action форма отправит данные на текущий URL -->
+    <form method="post">
+        <!-- 
+          type="text" - текстовое поле
+          name="title" - имя параметра для сервера
+          id="title" - идентификатор для JavaScript/CSS
+          class="form-control" - класс Bootstrap для стилизации
+          placeholder="Название статьи" - подсказка в поле
+        -->
+        <input type="text" name="title" id="title" class="form-control" placeholder="Название статьи"><br>
+        <textarea name="intro" id="intro" class="form-control" placeholder="Анонс"></textarea><br>
+        <textarea name="text" id="text" class="form-control" placeholder="Текст статьи"></textarea><br>
+         <!-- 
+          type="submit" - кнопка для отправки формы
+          class="btn btn-success" - стили Bootstrap (зеленая кнопка)
+          value="Отправить" - текст на кнопке
+        -->
+        <input type="submit" class="btn btn-success" value="Отправить">
+    </form>    
+{% endblock %}

@@ -1,0 +1,32 @@
+<!-- Шаблонизатор Jinja2 (теги % %):
+    % block % - определяет заменяемые секции
+    % endblock % - закрывает блок -->
+
+<!-- extends - шаблон наследует структуру от base.html.
+Содержимое будет вставлено в соответствующие блоки родительского шаблона. 
+-->
+{% extends 'base.html' %}
+
+{% block title %}Все статьи{% endblock %}
+
+{% block body %}
+    <h1>Все статьи</h1>
+
+    <!--
+      Цикл for для перебора всех статей 
+      element - временная переменная для каждой статьи
+      articles_list - переданный из Python-кода список
+    -->
+    {% for element in articles_list %}
+    <div class="h-100 p-5 bg-body-tertiary border rounded-3">      
+      <h2>{{ element.title }}</h2>
+      <p>{{ element.intro }}</p>
+      <!-- 
+        element.date - объект datetime из модели
+        .date() - метод, который возвращает только дату (без времени) -->
+      <p><b>Дата публикации: {{ element.date.date() }}</b></p>
+      <a href="articles/{{ element.id }}" class="btn btn-outline-secondary">Читать статью</a>
+    </div>
+    <br>
+    {% endfor %}  
+{% endblock %}
