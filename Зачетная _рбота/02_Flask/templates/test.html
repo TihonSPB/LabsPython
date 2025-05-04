@@ -12,8 +12,9 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Тестовая</h1>    
-
+    <h1>Тестовая</h1> 
+      
+    
     <!-- Таблица -->
     <table class="table table-hover">
         <thead>
@@ -44,25 +45,26 @@
     </table>
 
 
-    <h1>Mid-Town Farmers Market</h1>
+    <h1>{{ markets.market_name }}</h1>
     <div class="card">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3940.5660544042216!2d-89.51667722739151!3d34.37349220524594!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzTCsDIyJzI1LjEiTiA4OcKwMzEnMDAuNSJX!5e1!3m2!1sru!2sfr!4v1745793790288!5m2!1sru!2sfr" class="bd-placeholder-img card-img-top" width="100%" height="500"></iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m21!1m12!1m3!1d3000.0!2d{{ markets.lon }}!3d{{ markets.lat }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m6!3e6!4m0!4m3!3m2!1d{{ markets.lat }}!2d{{ markets.lon }}!5e1!3m2!1sru!2sfr!4v1745939290335!5m2!1sru!2sfr" class="bd-placeholder-img card-img-top" width="100%" height="500"></iframe>
         <div class="card-body">
             <h5 class="card-title">Адрес: 700 North Lamar Blvd., Oxford, MS(Mississippi), 38655</h5>
+            <h5 class="card-title">Адрес: {{ markets.street }}, {{ markets.city}}, {{ markets.state }}, {{ markets.zip }}</h5>
             <p class="card-text">Категории продуктов: Bakedgoods, Flowers, Eggs, Herbs, Vegetables, Honey, Jams, Meat, Plants, Prepared, Soap, Coffee, Fruits</p>
             <a href="#" class="btn btn-outline-light">Поиск рынков в радиусе 30 миль</a>
         </div>
     </div>
     <br>
-
+    {{ markets.market_id }} {{ markets.market_name }} {{ markets.street }} {{ markets.city}} {{ markets.state }} {{ markets.zip }} {{ markets.lat }} {{ markets.lon }}
     <h2>Отзывы</h2>
 
     <div class="row align-items-md-stretch">
 
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                2★
+                <div style="color: #ffc107;" class="card-header">
+                ★2 
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">Ким Фомичёв</h5>
@@ -77,7 +79,7 @@
 
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
+                <div style="color: #ffc107;" class="card-header">
                 5★
                 </div>
                 <div class="card-body">
@@ -93,7 +95,7 @@
 
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
+                <div style="color: #ffc107;" class="card-header">
                 4★
                 </div>
                 <div class="card-body">
