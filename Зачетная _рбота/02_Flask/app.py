@@ -141,17 +141,10 @@ def calculate_distance(location1, location2):
 
 # Декоратор. '/' - связывает функцию с URL-адресом '/' (главная страница).
 @app.route('/')
-@app.route('/home')
+@app.route('/home/<int:page>/<sort_by>/<order>')
 # Пользователь заходит на главную страницу, Flask вызывает эту функцию.
-def index():
-    # Получаем параметр сортировки из URL (по умолчанию - по названию)
-    sort_by = request.args.get('sort', 'market_name')
-    order = request.args.get('order', 'asc')  # asc▼ или desc▲
+def index(page=1, sort_by='market_name', order='asc'): # Параметры по умолчанию
     
-    # !!!new
-    page = request.args.get('page', 1, type=int)  # Добавляем параметр страницы
-    # !!!new
-
     # Определяем поле для сортировки
     sort_field = {
         'market_name': func.lower(Market.market_name), # func.lower() - # Приводим к нижнему регистру
@@ -187,16 +180,12 @@ def index():
         Market.zip
     ).order_by(sort_field)
         
-    # markets_data = markets_query.all()
-    
-    # !!!new
     # Добавляем пагинацию (25 записей на страницу)
     per_page = 25
     markets_data = markets_query.paginate(page=page, per_page=per_page, error_out=False)
     
     if not markets_data.items and page != 1:
         abort(404)
-    # !!!new
 
     return render_template(
         "index.html", 
@@ -205,7 +194,7 @@ def index():
         order=order
         )
 
-@app.route('/home/<int:id>') 
+@app.route('/<int:id>') 
 def market_detail(id):
     market = Market.query.get(id)
     return render_template("market_detail.html", market = market)

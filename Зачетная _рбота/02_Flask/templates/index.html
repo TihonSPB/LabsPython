@@ -19,10 +19,11 @@
     <tr>
         <th scope="col"> 
             <!--
-                url_for('index', sort='market_name', order=...)                             - Генерирует URL вида /?sort=market_name&order=asc (или desc).
+                url_for('index', page=1, sort_by='market_name', order=...)                  - Генерирует URL вида /market_name/asc (или desc).
                 order=('desc' if sort_by == 'market_name' and order == 'asc' else 'asc')    - определяет, какое направление сортировки (asc или desc) передать в URL:
             -->           
-            <a class="link-body-emphasis text-decoration-none" href="{{ url_for('index', sort='market_name', order=('desc' if sort_by == 'market_name' and order == 'asc' else 'asc')) }}">
+            <a class="link-body-emphasis text-decoration-none" 
+                href="{{ url_for('index', page=1, sort_by='market_name', order=('desc' if sort_by == 'market_name' and order == 'asc' else 'asc')) }}">
                  <!--
                     if sort_by == 'market_name'     - если market_name == market_name, тогда показываем:
                     if order == 'asc' ▾ else ▴      - стрелку вниз если asc или вверх если desc
@@ -34,22 +35,26 @@
             </a>
         </th>
         <th scope="col" class="dropdown">
-            <a class="link-body-emphasis text-decoration-none" href="{{ url_for('index', sort='city', order=('desc' if sort_by == 'city' and order == 'asc' else 'asc')) }}">
+            <a class="link-body-emphasis text-decoration-none" 
+                href="{{ url_for('index', page=1, sort_by='city', order=('desc' if sort_by == 'city' and order == 'asc' else 'asc')) }}">
                 Город{% if sort_by == 'city' %}{% if order == 'asc' %}▾{% else %}▴{% endif %}{% endif %}
             </a>
         </th>
         <th scope="col">
-            <a class="link-body-emphasis text-decoration-none" href="{{ url_for('index', sort='state', order=('desc' if sort_by == 'state' and order == 'asc' else 'asc')) }}">
+            <a class="link-body-emphasis text-decoration-none" 
+                href="{{ url_for('index', page=1, sort_by='state', order=('desc' if sort_by == 'state' and order == 'asc' else 'asc')) }}">
                 Штат{% if sort_by == 'state' %}{% if order == 'asc' %}▾{% else %}▴{% endif %}{% endif %}
             </a>
         </th>
         <th scope="col">
-            <a class="link-body-emphasis text-decoration-none" href="{{ url_for('index', sort='zip', order=('desc' if sort_by == 'zip' and order == 'asc' else 'asc')) }}">
+            <a class="link-body-emphasis text-decoration-none" 
+                href="{{ url_for('index', page=1, sort_by='zip', order=('desc' if sort_by == 'zip' and order == 'asc' else 'asc')) }}">
                 Индекс{% if sort_by == 'zip' %}{% if order == 'asc' %}▾{% else %}▴{% endif %}{% endif %}
             </a>
         </th>
         <th scope="col">
-            <a class="link-body-emphasis text-decoration-none" href="{{ url_for('index', sort='rating', order=('desc' if sort_by == 'rating' and order == 'asc' else 'asc')) }}">
+            <a class="link-body-emphasis text-decoration-none" 
+                href="{{ url_for('index', page=1, sort_by='rating', order=('desc' if sort_by == 'rating' and order == 'asc' else 'asc')) }}">
                 Рейтинг{% if sort_by == 'rating' %}{% if order == 'asc' %}▾{% else %}▴{% endif %}{% endif %}
             </a>
         </th>
@@ -58,7 +63,7 @@
     <tbody>
         {% for market in markets %}
         <tr>
-            <th scope="row"><a class="text-decoration-none" href="home/{{ market.market_id }}">{{ market.market_name }}</a></th>
+            <th scope="row"><a class="text-decoration-none" href="/{{ market.market_id }}">{{ market.market_name }}</a></th>
             <td>{{ market.city }}</td>
             <td>{{ market.state_abbr }}</td>
             <td>{{ market.zip }}</td>
@@ -82,7 +87,7 @@
         {% if markets.has_prev %}
             <li class="page-item">
                 <a class="page-link" 
-                   href="{{ url_for('index', page=markets.prev_num, sort=sort_by, order=order) }}">
+                   href="{{ url_for('index', page=markets.prev_num, sort_by=sort_by, order=order) }}">
                         &laquo;
                 </a>
             </li>
@@ -96,7 +101,7 @@
             {% if p %}
                 <li class="page-item{% if p == markets.page %} active{% endif %}">
                     <a class="page-link" 
-                       href="{{ url_for('index', page=p, sort=sort_by, order=order) }}">
+                       href="{{ url_for('index', page=p, sort_by=sort_by, order=order) }}">
                             {{ p }}
                     </a>
                 </li>
@@ -110,7 +115,7 @@
         {% if markets.has_next %}
             <li class="page-item">
                 <a class="page-link" 
-                   href="{{ url_for('index', page=markets.next_num, sort=sort_by, order=order) }}">
+                   href="{{ url_for('index', page=markets.next_num, sort_by=sort_by, order=order) }}">
                     &raquo;
                 </a>
             </li>
