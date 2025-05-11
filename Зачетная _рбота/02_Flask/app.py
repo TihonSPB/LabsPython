@@ -196,8 +196,40 @@ def index(page=1, sort_by='market_name', order='asc'): # Параметры по
 
 @app.route('/<int:id>') 
 def market_detail(id):
-    market = Market.query.get(id)
-    return render_template("market_detail.html", market = market)
+    
+    # Основная информация о рынке по ID и связанные данные через joins
+    market_info = db.session.query(
+        Market.market_id,
+        Market.market_name,
+        Market.street,
+        Market.zip,
+        Market.lat,
+        Market.lon,
+        City.city,
+        State.state_full,
+        State.state_abbr
+    ).filter(Market.market_id == id)\
+     .join(City, Market.city == City.city_id)\
+     .join(State, Market.state == State.state_id)\
+     .first()
+    
+    if not market_info:
+        abort(404) # Возвращаем 404 если рынок не найден
+    
+    # Категории рынка
+    categories = db.session.query(Category.category)\
+        .join(markets_categories, Category.category_id == markets_categories.c.category_id)\
+        .filter(markets_categories.c.market_id == id)\
+        .all()
+    
+    # Преобразуем список кортежей в список строк
+    categories = [category[0] for category in categories]
+    
+    return render_template(
+        "market_detail.html", 
+        market=market_info,
+        categories=categories
+    )
 
 @app.route('/test')
 def test():
@@ -213,3 +245,6 @@ if __name__ == "__main__":
     # 2) Подробные ошибки в браузере (удобно для разработки).
     # При перебросе на сервер отключить отображение ошибок в браузере
     app.run(debug=True)
+    
+    # запуск внутри сети. В cmd запустить flask run --host=0.0.0.0
+

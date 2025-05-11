@@ -17,37 +17,12 @@
     <div class="card">
         <iframe src="https://www.google.com/maps/embed?pb=!1m21!1m12!1m3!1d3000.0!2d{{ market.lon }}!3d{{ market.lat }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m6!3e6!4m0!4m3!3m2!1d{{ market.lat }}!2d{{ market.lon }}!5e1!3m2!1sru!2sfr!4v1745939290335!5m2!1sru!2sfr" class="bd-placeholder-img card-img-top" width="100%" height="500"></iframe>
         <div class="card-body">
-            <h5 class="card-title">Адрес: {{ market.street }}, {{ market.city}}, {{ market.state }}, {{ market.zip }}</h5>
-            <p class="card-text">Категории продуктов: Bakedgoods, Flowers, Eggs, Herbs, Vegetables, Honey, Jams, Meat, Plants, Prepared, Soap, Coffee, Fruits</p>
+            <h5 class="card-title">Адрес: {{ market.street }}, {{ market.city}}, {{ market.state_full }} ({{ market.state_abbr }}), {{ market.zip }}</h5>
+            <p class="card-text">Категории продуктов: {{ ", ".join(categories) }}</p>
         </div>
     </div>
     <br>  
     
-
-    <div class="bd-example m-0 border-0">    
-        <nav>
-          <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Home</button>
-            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false" tabindex="-1">Profile</button>
-            <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false" tabindex="-1">Contact</button>
-          </div>
-        </nav>
-        <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade active show" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-            <p>This is some placeholder content the <strong>Home tab's</strong> associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other <code>.nav</code>-powered navigation.</p>
-          </div>
-          <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-            <p>This is some placeholder content the <strong>Profile tab's</strong> associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other <code>.nav</code>-powered navigation.</p>
-          </div>
-          <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-            <p>This is some placeholder content the <strong>Contact tab's</strong> associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other <code>.nav</code>-powered navigation.</p>
-          </div>
-        </div>        
-    </div>
-
-    
-    
-
     <div class="row align-items-md-stretch">
 
         <div class="col-md-6">
