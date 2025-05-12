@@ -28,6 +28,10 @@ from datetime import datetime
 
 from sqlalchemy import func
 
+MINS_IN_HOUR = 60
+SECS_IN_MIN = 60
+ROW_COUNT = 25
+
 # Создаём объект app на основе класса Flask
 # В конструктор передаём название основного файла. (__name__)
 # __name__ нужен, чтобы Flask знал, где искать шаблоны (templates) и статические файлы (static).
@@ -51,6 +55,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Создание экземпляра SQLAlchemy и привязка к Flask-приложению (app)
 db = SQLAlchemy(app)  # db - это главный объект для работы с базой данных
+
 
 # ____________________________________
 # !!!\\\|||/// Таблицы DB \\\|||///!!!
@@ -98,6 +103,7 @@ markets_categories = db.Table('markets_categories',
     db.Column('category_id', db.Integer, db.ForeignKey('categories.category_id'), nullable=False)
 )
 
+
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -118,6 +124,7 @@ class Review(db.Model):
     score = db.Column(db.SmallInteger, nullable=False)
     review = db.Column(db.Text)
 
+
 # _______________________________________
 # !!!\\\|||/// Утилита (Util) Универсальная программа для расчета расстояния на поверхности земли \\\|||///!!!
 
@@ -135,6 +142,47 @@ def calculate_distance(location1, location2):
     angle = math.sin(del_lat)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(del_long)**2
     distance = 2 * EARTH_RADIUS_MI * math.asin(math.sqrt(angle))
     return distance
+
+
+# _______________________________________
+# !!!\\\|||/// Формат координат \\\|||///!!!
+
+def degree_minutes_seconds(location): # Разбивка локации на градусы, минуты, секунды
+
+    minutes, degrees = math.modf(location)
+    degrees = int(degrees)
+    minutes *= MINS_IN_HOUR
+    seconds, minutes = math.modf(minutes)
+    minutes = int(minutes)
+    seconds = SECS_IN_MIN * seconds
+    return degrees, minutes, seconds # Кортеж
+
+
+def format_location(location): # Вывод градусов в формате (025°44'16.00"N,080°13'29.17"W)
+    
+    # Если location пустой (None или пустой список/кортеж), возвращаем пустую строку
+    if not location[0] or not location[1] or len(location) < 2:
+        return "отсутствуют"
+    
+    # Определяем полушарие 
+    ns = ""
+    if location[0] < 0:
+        ns = 'S'
+    elif location[0] > 0:
+        ns = 'N'
+
+    ew = ""
+    if location[1] < 0:
+        ew = 'W'
+    elif location[1] > 0:
+        ew = 'E'
+
+    format_string = '{:03d}\xb0{:0d}\'{:.2f}"' # Градусы{:03d}-(03-3 знака; d-целое число); \xb0-символ "°"; Минуты{:0d}\'-0 будет сохраннен; Секунды{:.2f}"-Дробное с двумя знаками после запятой.
+    latdegree, latmin, latsecs = degree_minutes_seconds(abs(location[0]))
+    latitude = format_string.format(latdegree, latmin, latsecs)
+    longdegree, longmin, longsecs = degree_minutes_seconds(abs(location[1]))
+    longitude = format_string.format(longdegree, longmin, longsecs)
+    return '(' + latitude + ns + ',' + longitude + ew + ')'
 
 # _______________________________________
 # !!!\\\|||/// Маршрутизация \\\|||///!!!
@@ -181,7 +229,7 @@ def index(page=1, sort_by='market_name', order='asc'): # Параметры по
     ).order_by(sort_field)
         
     # Добавляем пагинацию (25 записей на страницу)
-    per_page = 25
+    per_page = ROW_COUNT
     markets_data = markets_query.paginate(page=page, per_page=per_page, error_out=False)
     
     if not markets_data.items and page != 1:
@@ -193,6 +241,7 @@ def index(page=1, sort_by='market_name', order='asc'): # Параметры по
         sort_by=sort_by, 
         order=order
         )
+
 
 @app.route('/<int:id>') 
 def market_detail(id):
@@ -225,11 +274,43 @@ def market_detail(id):
     # Преобразуем список кортежей в список строк
     categories = [category[0] for category in categories]
     
+    location = format_location((market_info.lat, market_info.lon)) 
+    
+    # Получаем все отзывы для этого рынка с информацией о пользователях
+    reviews = db.session.query(
+        Review.date_time,
+        Review.score,
+        Review.review,
+        User.fname,
+        User.lname,
+        User.username
+    ).join(
+        User, Review.user_id == User.user_id
+    ).filter(
+        Review.market_id == id
+    ).order_by(
+        Review.date_time.desc()
+    ).all()
+    
+    # Рассчитываем средний рейтинг
+    avg_rating = db.session.query(
+        db.func.avg(Review.score)
+    ).filter(
+        Review.market_id == id
+    ).scalar()
+    
+    # Округляем средний рейтинг до 1 знака после запятой
+    avg_rating = round(avg_rating, 1) if avg_rating else None
+    
     return render_template(
         "market_detail.html", 
         market=market_info,
-        categories=categories
+        categories=categories,
+        location=location,
+        reviews=reviews,
+        avg_rating=avg_rating
     )
+
 
 @app.route('/test')
 def test():
