@@ -302,13 +302,89 @@ def market_detail(id):
     # Округляем средний рейтинг до 1 знака после запятой
     avg_rating = round(avg_rating, 1) if avg_rating else None
     
+    # Проверяем, есть ли валидные координаты у текущего рынка
+    if (market_info.lat is None or market_info.lon is None or 
+        market_info.lat == '' or market_info.lon == ''):
+        current_location = None
+    else:
+        try:
+            # Дополнительная проверка, что координаты можно преобразовать в float
+            lat = float(market_info.lat)
+            lon = float(market_info.lon)
+            current_location = (lat, lon)
+        except (ValueError, TypeError):
+            current_location = None
+    
+    # Получаем все рынки (кроме текущего) с валидными координатами
+    all_markets = db.session.query(
+        Market.market_id,
+        Market.market_name,
+        City.city,
+        State.state_abbr,
+        Market.zip,
+        Market.lat,
+        Market.lon,
+        func.avg(Review.score).label('avg_score')
+    ).join(
+        City, Market.city == City.city_id
+    ).join(
+        State, Market.state == State.state_id
+    ).outerjoin(
+        Review, Market.market_id == Review.market_id
+    ).filter(
+        Market.market_id != id,
+        Market.lat.isnot(None),
+        Market.lon.isnot(None),
+        Market.lat != '',
+        Market.lon != ''
+    ).group_by(
+        Market.market_id,
+        Market.market_name,
+        City.city,
+        State.state_abbr,
+        Market.zip,
+        Market.lat,
+        Market.lon
+    ).all()
+            
+    # Фильтруем рынки по расстоянию (только если у текущего рынка есть валидные координаты)
+    nearby_markets = []
+    if current_location:
+        for market in all_markets:
+            # Проверяем координаты рынка
+            if (market.lat is None or market.lon is None or 
+                market.lat == '' or market.lon == ''):
+                continue                
+            try:
+                market_lat = float(market.lat)
+                market_lon = float(market.lon)
+                market_location = (market_lat, market_lon)
+                distance = calculate_distance(current_location, market_location)
+                if distance <= 30:
+                    nearby_markets.append({
+                        'market_id': market.market_id,
+                        'market_name': market.market_name,
+                        'city': market.city,
+                        'state_abbr': market.state_abbr,
+                        'zip': market.zip,
+                        'avg_score': round(float(market.avg_score), 1) if market.avg_score else None,
+                        'distance': round(distance, 1)
+                    })
+            except (ValueError, TypeError):
+                continue
+        
+        # Сортируем по расстоянию
+        nearby_markets.sort(key=lambda x: x['distance'])
+        
     return render_template(
         "market_detail.html", 
         market=market_info,
         categories=categories,
         location=location,
         reviews=reviews,
-        avg_rating=avg_rating
+        avg_rating=avg_rating,
+        nearby_markets=nearby_markets,
+        has_coordinates=current_location is not None  # Добавляем флаг наличия координат
     )
 
 

@@ -29,14 +29,18 @@
             {% else %}
             <p class="card-text">Пока нет оценок</p>
             {% endif %}
+        </div>
+    </div>
 
-            <hr>
-            <h5>Отзывы: </h5>
+    <br>
 
+    <div class="card">
+        <div class="card-body">            
+            <h2>Отзывы</h2>
+            <button class="btn btn-outline-secondary" type="button">Оценить рынок</button>                        
             {% if reviews %}
             <div class="row align-items-md-stretch">
                 {% for review in reviews %}
-                
                 <div class="col-md-6">
                     <br>
                     <div class="card">
@@ -50,16 +54,60 @@
                         <div class="card-footer text-body-secondary">
                             {{ review.date_time.strftime('%d.%m.%Y') }}
                         </div>
-                    </div>
-                    
+                    </div> 
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="card-text">Пока нет отзывов</p>
-            {% endif %}
+            <p class="card-text"><br>Пока нет отзывов</p>
+            {% endif %}            
         </div>
     </div>
+
     <br>
-    
+
+    <div class="card">
+        <div class="card-body">
+            <h2>Ближайшие рынки</h2>
+            {% if not has_coordinates %}
+            <div class="alert alert-info">
+                Невозможно определить ближайшие рынки, так как для этого рынка отсутствуют координаты.
+            </div>
+            {% elif nearby_markets %}
+            <p>В радиусе 30 миль:</p>
+            <table  class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Расстояние</th>
+                        <th scope="col">Наименование</th>
+                        <th scope="col">Город, Штат, Индекс</th>                
+                        <th scope="col">Рейтинг</th>                
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for market in nearby_markets %}
+                        <tr>
+                            <td>{{ market.distance }} миль</td>
+                            <th scope="row"><a class="text-decoration-none" href="/{{ market.market_id }}">{{ market.market_name }}</a></th>
+                            <td>{{ market.city }}, {{ market.state_abbr }}, {{ market.zip }}</td>
+                            <td style="color: #ffc107;">
+                                ★ 
+                                {% if market.avg_score %}
+                                    {{ market.avg_score }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p  class="card-text">В радиусе 30 миль нет других рынков</p>
+            {% endif %}
+        </div>        
+    </div>
+
+    <br>
+
 {% endblock %}
