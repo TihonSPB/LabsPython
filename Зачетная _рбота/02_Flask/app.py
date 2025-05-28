@@ -28,6 +28,8 @@ from datetime import datetime
 
 from sqlalchemy import func
 
+import socket
+
 MINS_IN_HOUR = 60
 SECS_IN_MIN = 60
 ROW_COUNT = 25
@@ -390,8 +392,36 @@ def market_detail(id):
 
 @app.route('/test')
 def test():
+    
+    # Информация о подключении
+    def get_hostname(ip):
+        try:
+            return socket.gethostbyaddr(ip)[0]
+        except (socket.herror, socket.gaierror):
+            return "Не удалось определить"
+
+    ip = request.remote_addr
+    hostname = get_hostname(ip) if ip not in ['127.0.0.1', '::1'] else "localhost"
+
+    info = {
+        "IP-адрес пользователя": ip,
+        "Имя устройства (hostname)": hostname,
+        "Возможный логин (NTLM)": request.headers.get("Authorization", "Не доступен"),
+        "Порт клиента": request.environ.get('REMOTE_PORT'),
+        "User-Agent (браузер, ОС, устройство)": request.headers.get('User-Agent'),
+        "Реферер (откуда пришел пользователь)": request.referrer,
+        "Хост (домен, к которому обращается пользователь)": request.host,
+        "Схема (HTTP/HTTPS)": request.scheme,
+        "Метод запроса (GET, POST и т. д.)": request.method,
+        "URL запроса": request.url,
+        "Заголовки HTTP": request.headers,
+        "Cookies": request.cookies,
+        "Язык пользователя": request.headers.get('Accept-Language'),
+        "Время запроса": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    
     markets = Market.query.first()
-    return render_template("test.html",markets=markets)
+    return render_template("test.html",markets=markets, info=info)
 
 
 # Проверяем, запущен ли скрипт напрямую (а не импортирован как модуль).
