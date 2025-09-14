@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <!--
+    Условные операторы
+    Если функция view забудет передать значение для переменной-заполнителя title, 
+    то вместо отображения пустого заголовка шаблон предоставит заголовок по умолчанию.
+    -->
+    {% if title %}
+      <title>{{ title }} - Microblog</title>
+    {% else %}
+      <title>Welcome to Microblog!</title>
+    {% endif %}
+  </head>
+  <body>
+    <div>Microblog: <a href="/index">Home</a></div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Экземпляр приложения Flask
+"""
+# импортируем класс Flask из пакета flask
+from flask import Flask
+from config import Config
+
+# Создаём объект app как экземпляр класса Flask
+# В конструктор передаём название основного файла. (__name__)
+# __name__ нужен, чтобы Flask знал, где искать шаблоны (templates) и статические файлы (static).
+app = Flask(__name__)
+app.config.from_object(Config)
+
+# Импортируем модуль routes
+# Нижний импорт - решение, позволяющее избежать циклического импорта, распространенной проблемы с приложениями Flask
+from app import routes
