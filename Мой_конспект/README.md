@@ -1910,7 +1910,69 @@ print(a)
 	conn.close()
 	```
 
----  
+---
+
+### Справочник по функциям SQL  
+
+```SQL
+-- Ultimate SQL Functions Cheatsheet
+
+-- 1. Aggregation Functions (Агрегатные функции)
+COUNT(*)                  -- Общее количество строк
+COUNT(DISTINCT col)       -- Количество уникальных значений
+SUM(col)                  -- Сумма значений
+AVG(col)                  -- Среднее значение
+MIN(col) / MAX(col)       -- Наименьшее / Наибольшее значение
+STRING_AGG(col, ', ')     -- Объединение строк (PostgreSQL)
+
+-- 2. Window Functions (Оконные функции)
+ROW_NUMBER() OVER(...)    -- Индекс строки
+RANK() / DENSE_RANK()     -- Ранжирование
+LAG(col) / LEAD(col)      -- Предыдущая / Следующая строка
+NTILE(n) OVER(...)        -- Разделение на группы (бакеты)
+FIRST_VALUE() / LAST_VALUE() -- Крайние строки
+
+-- 3. String Functions (Строковые функции)
+LOWER(), UPPER()          -- Смена регистра
+TRIM(), LTRIM(), RTRIM()  -- Удаление пробелов
+SUBSTRING(str, x, y)      -- Извлечение подстроки (срез)
+CONCAT(str1, str2)        -- Объединение строк
+LENGTH(text)              -- Длина строки
+REPLACE(text, 'a', 'b')   -- Замена частей строки
+
+-- 4. Date & Time Functions (Функции даты и времени)
+CURRENT_DATE, CURRENT_TIME -- Сегодняшняя дата / Текущее время
+NOW()                     -- Полная временная метка
+DATE_PART('year', date)   -- Извлечение части даты (например, год)
+DATE_TRUNC('month', date) -- Округление даты до месяца
+AGE(date1, date2)         -- Разница между датами
+
+-- 5. Control Flow (Управление потоком)
+CASE WHEN a THEN b ELSE c END -- Логика If-Else
+COALESCE(col1, col2)      -- Первое не-NULL значение
+NULLIF(col1, col2)        -- NULL, если значения равны
+
+-- 6. Filtering (Фильтрация)
+IN (val1, val2)           -- Соответствие значениям из списка
+NOT IN (...)              -- Исключение значений из списка
+EXISTS (SELECT ...)       -- Проверка на существование в подзапросе
+LIKE '%abc%'              -- Поиск по шаблону
+ILIKE '%xyz%'             -- Поиск по шаблону без учета регистра (PostgreSQL)
+
+-- 7. Type Conversion (Преобразование типов)
+CAST(col AS datatype)     -- Преобразование типа
+ISNULL(col, val)          -- Обработка NULL (SQL Server)
+IFNULL(col, val)          -- Обработка NULL (MySQL)
+NVL(col, val)             -- Замена NULL (Oracle)
+
+-- 8. Math Functions (Математические функции)
+ROUND(val, 2)             -- Округление десятичных дробей
+FLOOR(val), CEIL(val)     -- Округление вниз / вверх
+MOD(x, y)                 -- Остаток от деления
+ABS(x), POWER(x, y)       -- Модуль, возведение в степень
+``` 
+
+---
 
 ## Виртуальная среда  
 ---  
