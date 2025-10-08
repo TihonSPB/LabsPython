@@ -1956,7 +1956,7 @@ print(a)
 	AGE(date1, date2)         -- Разница между датами
 	```
 
--- 5. Control Flow (Управление потоком)  
+5. Control Flow (Управление потоком)  
 
 	```SQL
 	CASE WHEN a THEN b ELSE c END -- Логика If-Else
@@ -1964,7 +1964,7 @@ print(a)
 	NULLIF(col1, col2)        -- NULL, если значения равны
 	```
 
--- 6. Filtering (Фильтрация)  
+6. Filtering (Фильтрация)  
 
 	```SQL
 	IN (val1, val2)           -- Соответствие значениям из списка
@@ -1974,7 +1974,7 @@ print(a)
 	ILIKE '%xyz%'             -- Поиск по шаблону без учета регистра (PostgreSQL)
 	```
 
--- 7. Type Conversion (Преобразование типов)  
+7. Type Conversion (Преобразование типов)  
 
 	```SQL
 	CAST(col AS datatype)     -- Преобразование типа
@@ -1983,7 +1983,7 @@ print(a)
 	NVL(col, val)             -- Замена NULL (Oracle)
 	```
 
--- 8. Math Functions (Математические функции)  
+8. Math Functions (Математические функции)  
 
 	```SQL
 	ROUND(val, 2)             -- Округление десятичных дробей
