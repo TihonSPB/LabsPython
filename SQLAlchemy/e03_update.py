@@ -78,31 +78,63 @@ with Session(engine) as session:
     """
 
 
-############# 2. ОБНОВЛЕНИЕ ДАННЫХ #############
+############# 2. ОБНОВЛЕНИЕ ИМЕНИ ПОЛЬЗОВАТЕЛЯ #############
+with Session(engine) as session:
+    try:
+        # Находим пользователя
+        my_data2 = session.scalar(
+            select(User)
+            .where(User.id == 1)
+        )
+       
+        if not my_data2:
+            print("Пользователь не найден")
+       
+        # Меняем имя пользователя
+        my_data2.name = 'SUPER_STAR'
+       
+        session.commit()
+        print(f"✅ Имя пользователя обновлено на {my_data2.name}")
+       
+    except Exception as e:
+        session.rollback()  # Откат изменений если что-то пошло не так
+        print(f"❌ Ошибка: {e}")
+
+   
+    """
+    Таблица user_account:
+    id | name        | fullname
+    ---|-------------|-------------------
+    1  | SUPER_STAR *| Patrick Star
+    2  | spongebob   | Spongebob Squarepants
+    3  | sandy       | Sandy Cheeks
+    """
+       
+############# 3. ОБНОВЛЕНИЕ ДАННЫХ В СВЯЗАНОЙ ТАБЛИЦЕ #############
 with Session(engine) as session:
     """
-    my_select2 = select(User).where(User.name == "sandy")
+    my_select3 = select(User).where(User.name == "sandy")
    
-    my_data2 = session.scalars(my_select2).one()
-    my_data2.addresses[1].email_address = "new_email@sandy.org"
+    my_data3 = session.scalars(my_select3).one()
+    my_data3.addresses[1].email_address = "new_email@sandy.org"
    
     session.commit()
     """
    
     try:
         # Находим пользователя
-        my_data2 = session.scalar(
+        my_data3 = session.scalar(
             select(User)
             .where(User.name == "sandy")
         )
        
-        if my_data2 and my_data2.addresses:
-            print(f"Найдено адресов у пользователя {my_data2.name}: {len(my_data2.addresses)}")
+        if my_data3 and my_data3.addresses:
+            print(f"Найдено адресов у пользователя {my_data3.name}: {len(my_data3.addresses)}")
            
             # Безопасное обновление - проверяем существование индекса
-            if len(my_data2.addresses) > 1:
-                old_email = my_data2.addresses[1].email_address
-                my_data2.addresses[1].email_address = "new_email@sandy.org"
+            if len(my_data3.addresses) > 1:
+                old_email = my_data3.addresses[1].email_address
+                my_data3.addresses[1].email_address = "new_email@sandy.org"
                
                 session.commit()
                 print(f"✅ Адрес обновлен: {old_email} → new_email@sandy.org")
@@ -126,7 +158,7 @@ with Session(engine) as session:
     """
    
    
-############# 2. ОБНОВЛЕНИЕ ВСЕХ ДАННЫХ ПОЛЬЗОВАТЕЛЯ В ОДНОЙ ТРАНЗАКЦИИ #############
+############# 4. ОБНОВЛЕНИЕ ВСЕХ ДАННЫХ ПОЛЬЗОВАТЕЛЯ В ОДНОЙ ТРАНЗАКЦИИ #############
 with Session(engine) as session:  # ← ОДНА сессия
     try:
         # 1. Находим пользователя с адресами
@@ -141,6 +173,7 @@ with Session(engine) as session:  # ← ОДНА сессия
        
         # 2. ВСЕ изменения в одной транзакции
         # Меняем имя пользователя
+        user.name = 'patrick'
         user.fullname = 'Patrick Super Star'
        
         # Меняем первый email адрес
@@ -162,8 +195,8 @@ with Session(engine) as session:  # ← ОДНА сессия
     """
     Таблица user_account:
     id | name      | fullname
-    ---|-----------|-----------------------
-    1  | patrick   | Patrick Super Star     *
+    ---|-----------|------------------------
+    1  | patrick  *| Patrick Super Star    *
     2  | spongebob | Spongebob Squarepants
     3  | sandy     | Sandy Cheeks
 
@@ -173,5 +206,5 @@ with Session(engine) as session:  # ← ОДНА сессия
     1  | spongebob@sqlalchemy.org          | 2
     2  | sandy@sqlalchemy.org              | 3
     3  | new_email@sandy.org               | 3
-    4  | patrick_super_star@sqlalchemy.org | 1      *
+    4  | patrick_super_star@sqlalchemy.org | 1     *
     """
