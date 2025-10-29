@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Маршруты
+Контроллер, Маршруты
 """
 
 from flask import render_template, flash, redirect, url_for #функция url_for() для ссылок

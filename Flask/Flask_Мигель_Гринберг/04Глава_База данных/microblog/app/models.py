@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-
-# models.py Модель пользовательской базы данных
+"""
+Модель пользовательской базы данных
+"""
 
 from typing import Optional
 # импорт модулей sqlalchemy и sqlalchemy.orm из пакета SQLAlchemy, псевдонимы sa и so
@@ -10,12 +11,12 @@ import sqlalchemy.orm as so
 from app import db
 
 
-'''
+"""
 Таблица:
 id | username | email | password_hash
 ---|----------|-------|---------------
    |          |       |
-'''
+"""
 
 class User(db.Model): # Класс наследуется от db.Model
     # so.Mapped[*] - тип столбца, указывает обязательность значения
