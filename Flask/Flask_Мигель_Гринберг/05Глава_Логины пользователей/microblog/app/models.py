@@ -9,7 +9,13 @@ import sqlalchemy as sa
 import sqlalchemy.orm as so
 from datetime import datetime, timezone
 
-from app import db
+from app import db, login
+
+# импорт модулей для хэширования паролей и проверки без необходимости хранить исходные пароли
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# импорт миксин-класса, стандартные реализации методов и свойств, необходимых Flask-Login для работы с моделью пользователя
+from flask_login import UserMixin
 
 
 """
@@ -19,7 +25,7 @@ id | username | email | password_hash
    |          |       |
 """
 
-class User(db.Model): # Класс наследуется от db.Model
+class User(UserMixin, db.Model): # Класс наследуется от db.Model для работы с БД и миксин-класса для управлениями сессиями пользователей
     # so.Mapped[*] - тип столбца, указывает обязательность значения
     # so.Mapped[Optional[*]] - тип столбца, может быть пустым или обнуляемым
     # so.mapped_column() - дополнительные конфигурации столбца
@@ -37,6 +43,14 @@ class User(db.Model): # Класс наследуется от db.Model
     # Метод для отображения объекта при печати
     def __repr__(self):
         return '<User {}>'.format(self.username)
+    
+    # Метод для генерации пароля
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    # Метод для проверки пароля
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 """
@@ -65,3 +79,12 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+@login.user_loader # Регистрируем функцию как загрузчик для Flask-Login
+def load_user(id): 
+    """
+    Функция-загрузчик пользователя для Flask-Login.
+    Вызывается автоматически при каждом запросе для загрузки пользователя из БД.
+    """
+    return db.session.get(User, int(id)) # Преобразуем 'id' (str) в int и ищем в БД
