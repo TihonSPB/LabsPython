@@ -6,7 +6,7 @@
 from flask import render_template, flash, redirect, url_for, request  #функция url_for() для ссылок, функция request для доступа к параметрам запроса
 from app import app, db # Импортируем объект базы данных
 
-from app.forms import LoginForm # Импорт класса LoginForm из модуля forms.py в пакете app
+from app.forms import LoginForm, RegistrationForm # Импорт классов LoginForm, RegistrationForm из модуля forms.py в пакете app
 
 from flask_login import current_user, login_user, logout_user, login_required   # Импортируем текущего пользователя, функцию входа и выхода
 import sqlalchemy as sa # SQLAlchemy для построения запросов
@@ -24,22 +24,20 @@ from urllib.parse import urlsplit  # Для анализа URL
 # аргумент next имеет исходный URL /index, приложение может использовать для перенаправления обратно после входа в систему
 @login_required 
 def index():
-    # Макет пользователя как словарь
-    user = {'username': 'Miguel'}
-    
+
     # Список, где каждый элемент представляет собой словарь с полями author и body
     posts = [
         {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
+            'author': {'username': 'Джон'},
+            'body': 'Прекрасный день в Портленде!'
         },
         {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
+            'author': {'username': 'Сюзи'},
+            'body': 'Фильм «Мстители» был такой классный!'
         }
     ]
     
-    return render_template('index.html', title='Home', user=user, posts=posts)
+    return render_template('index.html', title='Home', posts=posts)
 
 
 # Функция представления. Обрабатывает запросы к /login
@@ -91,6 +89,7 @@ def login():
     # form=form - экземпляр формы для отображения
     return render_template('login.html', title='Sign In', form=form)
 
+
 @app.route('/logout')
 def logout():
     """
@@ -102,3 +101,41 @@ def logout():
     logout_user()
     # Перенаправляем пользователя на главную страницу
     return redirect(url_for('index'))
+
+
+@app.route('/register', methods=['GET', 'POST']) # Маршрут для регистрации, принимает GET и POST запросы
+def register():
+    """
+    Обрабатывает регистрацию новых пользователей.
+    GET - показывает форму регистрации
+    POST - обрабатывает отправленную форму
+    """    
+    # Проверяем, не вошел ли пользователь уже в систему
+    if current_user.is_authenticated:
+        # Перенаправляем на главную страницу если пользователь уже аутентифицирован
+        return redirect(url_for('index'))
+    # Создаем экземпляр формы регистрации
+    # Для GET-запроса - пустая форма, для POST - с данными от пользователя
+    form = RegistrationForm()
+    
+    # Проверяем, была ли форма отправлена и прошла ли всю валидацию
+    if form.validate_on_submit(): # validate_on_submit() возвращает True только для POST с валидными данными
+        # СОЗДАНИЕ НОВОГО ПОЛЬЗОВАТЕЛЯ
+        # Создаем нового пользователя с данными из формы    
+        user = User(username=form.username.data, email=form.email.data)
+        # Устанавливаем хэшированный пароль для пользователя
+        user.set_password(form.password.data)
+        # СОХРАНЕНИЕ В БАЗУ ДАННЫХ
+        # Добавляем нового пользователя в сессию базы данных
+        db.session.add(user)
+        # Фиксируем изменения в базе данных (сохраняем пользователя)
+        db.session.commit()
+        flash('Поздравляем, теперь вы зарегистрированный пользователь!')
+        # Перенаправляем пользователя на страницу входа
+        return redirect(url_for('login'))
+    
+    # ОТОБРАЖЕНИЕ ФОРМЫ РЕГИСТРАЦИИ
+    # Этот код выполняется для:
+    # - GET запросов (первый заход на страницу)
+    # - POST запросов с невалидными данными (форма покажется с ошибками)
+    return render_template('register.html', title='Register', form=form)
