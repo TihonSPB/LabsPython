@@ -1,0 +1,16 @@
+<!-- Наследуем базовый шаблон -->
+{% extends "base.html" %}
+
+<!-- Блок content, будет вставлен в базовый шаблон -->
+{% block content %}
+    <!-- user.username берется из переменной, переданной из app/routes.py -->
+    <h1>Пользователь: {{ user.username }}</h1>
+    <hr>
+    <!-- Цикл по всем постам пользователя -->
+    <!-- posts - список, переданный из app/routes.py -->
+    {% for post in posts %}
+    <p>
+    {{ post.author.username }} сказал(а): <b>{{ post.body }}</b>
+    </p>
+    {% endfor %}
+{% endblock %}

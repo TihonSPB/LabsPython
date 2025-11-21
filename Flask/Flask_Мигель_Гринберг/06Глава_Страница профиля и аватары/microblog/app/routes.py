@@ -139,3 +139,20 @@ def register():
     # - GET запросов (первый заход на страницу)
     # - POST запросов с невалидными данными (форма покажется с ошибками)
     return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/user/<username>')  # Динамический маршрут: /user/ivan, /user/maria и т.д.
+@login_required  # Защита страницы - только для авторизованных пользователей
+def user(username):  # Функция получает username из URL
+    # Ищем пользователя в базе данных по имени
+    # first_or_404 либо возвращает пользователя из базы, либо автоматически показывает ошибку 404
+    user = db.first_or_404(sa.select(User).where(User.username == username))
+    
+    # Создаем тестовые посты пользователя (временные данные)
+    posts = [
+        {'author': user, 'body': 'Пост #1'},
+        {'author': user, 'body': 'Пост #2'}
+    ]
+    
+    # Рендерим шаблон user.html, передавая данные пользователя и его посты
+    return render_template('user.html', user=user, posts=posts)
