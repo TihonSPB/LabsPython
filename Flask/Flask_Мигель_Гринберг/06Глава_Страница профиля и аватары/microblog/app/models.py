@@ -17,6 +17,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # импорт миксин-класса, стандартные реализации методов и свойств, необходимых Flask-Login для работы с моделью пользователя
 from flask_login import UserMixin
 
+# Импорт функции для создания MD5 хэша
+from hashlib import md5
+
 
 """
 Таблица user:
@@ -51,7 +54,23 @@ class User(UserMixin, db.Model): # Класс наследуется от db.Mod
     # Метод для проверки пароля
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
+    
+    # Метод добавляет визуальную идентификацию пользователя без хранения изображений
+    def avatar(self, size):
+        """
+        Генерирует URL аватарки пользователя через Gravatar
+        size: размер аватарки в пикселях (например, 128, 64, 32)
+        """        
+        # self.email.lower() - приводим email к нижнему регистру (Gravatar регистронезависимый)
+        # .encode('utf-8') - преобразуем строку в байты (md5 работает с байтами)
+        email_bytes = self.email.lower().encode('utf-8')
+        # md5() - создает хэш-объект
+        # .hexdigest() - преобразует хэш в 32-символьную шестнадцатеричную строку
+        digest = md5(email_bytes).hexdigest()
+        # f-строка подставляет хэш и размер
+        # d=identicon - если у пользователя нет Gravatar, генерируется геометрическая иконка
+        # s={size} - задает размер аватарки в пикселях
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
 """
 Таблица post:

@@ -3,14 +3,18 @@
 
 <!-- Блок content, будет вставлен в базовый шаблон -->
 {% block content %}
-    <!-- user.username берется из переменной, переданной из app/routes.py -->
-    <h1>Пользователь: {{ user.username }}</h1>
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <!-- user.username берется из переменной, переданной из app/routes.py -->
+            <td><h1>Пользователь: {{ user.username }}</h1></td>
+        </tr>
+    </table>
     <hr>
     <!-- Цикл по всем постам пользователя -->
     <!-- posts - список, переданный из app/routes.py -->
     {% for post in posts %}
-    <p>
-    {{ post.author.username }} сказал(а): <b>{{ post.body }}</b>
-    </p>
+        <!-- include - оператор вызыват суб-шаблон -->
+        {% include '_post.html' %}
     {% endfor %}
 {% endblock %}
