@@ -23,9 +23,9 @@ from hashlib import md5
 
 """
 Таблица user:
-id | username | email | password_hash
----|----------|-------|---------------
-   |          |       |
+id | username | email | password_hash | about_me | last_seen
+---|----------|-------|---------------|----------|-----------
+   |          |       |               |          |
 """
 
 class User(UserMixin, db.Model): # Класс наследуется от db.Model для работы с БД и миксин-класса для управлениями сессиями пользователей
@@ -36,6 +36,8 @@ class User(UserMixin, db.Model): # Класс наследуется от db.Mod
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
+    about_me: so.Mapped[Optional[str]] = so.mapped_column(sa.String(140))
+    last_seen: so.Mapped[Optional[datetime]] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
     
     # posts - не фактическое поле базы данных
     # so.WriteOnlyMapped - определение типа posts как тип коллекции с объектами Post внутри.

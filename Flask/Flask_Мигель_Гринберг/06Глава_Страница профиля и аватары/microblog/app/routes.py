@@ -6,13 +6,15 @@
 from flask import render_template, flash, redirect, url_for, request  #функция url_for() для ссылок, функция request для доступа к параметрам запроса
 from app import app, db # Импортируем объект базы данных
 
-from app.forms import LoginForm, RegistrationForm # Импорт классов LoginForm, RegistrationForm из модуля forms.py в пакете app
+from app.forms import LoginForm, RegistrationForm, EditProfileForm # Импорт классов LoginForm, RegistrationForm, EditProfileForm из модуля forms.py в пакете app
 
 from flask_login import current_user, login_user, logout_user, login_required   # Импортируем текущего пользователя, функцию входа и выхода
 import sqlalchemy as sa # SQLAlchemy для построения запросов
 from app.models import User # Импортируем модель пользователя
 
 from urllib.parse import urlsplit  # Для анализа URL
+
+from datetime import datetime, timezone  # Импортируем функции для работы с датой/временем
 
 
 # Декоратор. '/' - связывает функцию с URL-адресом '/' (главная страница).
@@ -156,3 +158,80 @@ def user(username):  # Функция получает username из URL
     
     # Рендерим шаблон user.html, передавая данные пользователя и его посты
     return render_template('user.html', user=user, posts=posts)
+
+
+# Декоратор @app.before_request указывает, что эта функция
+# будет выполняться ПЕРЕД КАЖДЫМ запросом к приложению
+@app.before_request
+def before_request():
+    """
+    Функция выполняется перед обработкой каждого HTTP-запроса.
+    Обновляет время последней активности авторизованных пользователей.
+    """
+    
+    # Проверяем, авторизован ли текущий пользователь
+    # current_user - объект Flask-Login, is_authenticated - свойство
+    if current_user.is_authenticated:
+        # Если пользователь авторизован:
+        
+        # 1. Получаем текущее время в формате UTC
+        # datetime.now(timezone.utc) - текущее время в часовом поясе UTC
+        # UTC (Coordinated Universal Time) - всемирное координированное время
+        current_time = datetime.now(timezone.utc)
+        
+        # 2. Записываем это время в поле last_seen текущего пользователя
+        # Это поле определено в модели User
+        current_user.last_seen = current_time
+        
+        # 3. Сохраняем изменения в базе данных
+        # commit() фиксирует все изменения в текущей сессии БД
+        db.session.commit()
+
+
+# Маршрут для редактирования профиля
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required  # Только авторизованные пользователи могут редактировать профиль
+def edit_profile():
+    """
+    Обрабатывает редактирование профиля пользователя.
+    GET - показывает форму с текущими данными
+    POST - сохраняет изменения из формы
+    """
+    
+    # Создаем экземпляр формы редактирования профиля
+    form = EditProfileForm()
+    
+    # Часть 1: Обработка отправки формы (POST запрос)
+    if form.validate_on_submit():
+        # Если форма отправлена и данные прошли валидацию:
+        
+        # Обновляем имя пользователя в базе данных
+        current_user.username = form.username.data
+        
+        # Обновляем информацию "О себе"
+        current_user.about_me = form.about_me.data
+        
+        # Сохраняем изменения в базе данных
+        db.session.commit()
+        
+        # Показываем сообщение об успешном сохранении
+        flash('Изменения были сохранены.')
+        
+        # Перенаправляем обратно на эту же страницу
+        # (пользователь увидит сообщение flash и обновленные данные)
+        return redirect(url_for('edit_profile'))
+    
+    # Часть 2: Первый заход на страницу (GET запрос)
+    elif request.method == 'GET':
+        # Заполняем форму текущими данными пользователя
+        # Это нужно, чтобы пользователь видел свои текущие данные при редактировании
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    
+    # Часть 3: Отображение формы
+    # Выполняется если:
+    # 1. Это GET запрос (показываем заполненную форму)
+    # 2. Это POST запрос с невалидными данными (показываем форму с ошибками)
+    return render_template('edit_profile.html', 
+                          title='Edit Profile',  # Заголовок страницы
+                          form=form)             # Объект формы для шаблона

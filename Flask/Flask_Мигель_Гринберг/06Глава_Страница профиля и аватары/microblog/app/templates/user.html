@@ -7,7 +7,16 @@
         <tr valign="top">
             <td><img src="{{ user.avatar(128) }}"></td>
             <!-- user.username берется из переменной, переданной из app/routes.py -->
-            <td><h1>Пользователь: {{ user.username }}</h1></td>
+            <td>
+                <h1>Пользователь: {{ user.username }}</h1>
+                <!-- поля about_me и last_seen видны только если они есть. переменные, передаются из app/routes.py-->
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                {% if user.last_seen %}<p>Последнее появление: {{ user.last_seen }}</p>{% endif %}
+                <!-- ссылка видна если это ваш профиль -->
+                {% if user == current_user %}
+                    <p><a href="{{ url_for('edit_profile') }}">Редактировать профиль</a></p>
+                {% endif %}
+            </td>
         </tr>
     </table>
     <hr>

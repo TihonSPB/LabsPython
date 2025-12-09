@@ -4,8 +4,8 @@
 """
 
 from flask_wtf import FlaskForm # FlaskForm - базовый класс для всех форм в Flask-WTF
-from wtforms import StringField, PasswordField, BooleanField, SubmitField # Поля формы
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo # Валидатор - проверяет, что поле не пустое
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField # Поля формы
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length # Валидатор - проверяет, что поле не пустое
 
 import sqlalchemy as sa  # SQLAlchemy для запросов к БД
 from app import db  # Объект базы данных
@@ -121,3 +121,29 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             # Выбрасываем ошибку валидации - email уже используется
             raise ValidationError('Пожалуйста, используйте другой адрес электронной почты.')
+
+
+'''
+Класс формы
+EditProfileForm наследуется от FlaskForm
+'''
+class EditProfileForm(FlaskForm):
+    """
+    Форма для редактирования профиля пользователя.
+    Позволяет изменить имя пользователя и информацию 'О себе'.
+    """
+    
+    # Поле для имени пользователя
+    # StringField - стандартное текстовое поле (одна строка)
+    # DataRequired() - проверяет, что поле не пустое
+    username = StringField('Имя пользователя', validators=[DataRequired()])
+    
+    # Поле 'О себе' (многострочный текст)
+    # TextAreaField - поле для ввода длинного текста (textarea в HTML)
+    # Length(min=0, max=140) - проверяет длину текста (от 0 до 140 символов)
+    # min=0 - поле может быть пустым (пользователь может не заполнять)
+    # max=140 - ограничение как в Twitter (краткая информация)
+    about_me = TextAreaField('О себе', validators=[Length(min=0, max=140)])
+    
+    # Кнопка отправки формы
+    submit = SubmitField('Отправить')
