@@ -4,3 +4,4 @@
 ~$ask_*.docx
 .~lock.*
 *.tmp
+*.log

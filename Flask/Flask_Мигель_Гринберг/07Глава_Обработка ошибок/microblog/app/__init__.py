@@ -17,6 +17,9 @@ from flask_login import LoginManager
 import logging
 from logging.handlers import SMTPHandler  # Обработчик логов, отправляющий письма
 
+from logging.handlers import RotatingFileHandler # Импортируем обработчик для ротации лог-файлов
+import os  # Для работы с файловой системой
+
 # Создаём объект app как экземпляр приложения, класса Flask
 # В конструктор передаём название основного файла. (__name__)
 # __name__ нужен, чтобы Flask знал, где искать шаблоны (templates) и статические файлы (static).
@@ -76,6 +79,41 @@ if not app.debug:
         
         # 5. Добавляем обработчик к логгеру приложения
         app.logger.addHandler(mail_handler)
+        
+    
+    # 1. Создаем папку для логов, если она не существует
+    # Это предотвращает ошибку при попытке записи в несуществующую директорию
+    if not os.path.exists('logs'):
+        os.mkdir('logs')  # Создаем папку 'logs' в текущей директории
+    
+    # 2. Создаем ротирующий обработчик лог-файлов
+    # RotatingFileHandler автоматически архивирует старые логи
+    file_handler = RotatingFileHandler(
+        'logs/microblog.log',  # Путь к основному лог-файлу
+        maxBytes=10240,        # Максимальный размер файла (10 КБ)
+        backupCount=10         # Хранить 10 архивных файлов
+    )
+    
+    # 3. Настраиваем формат записей в логе
+    file_handler.setFormatter(logging.Formatter(
+        # Шаблон записи:
+        # Время Уровень: Сообщение [в путь_к_файлу:номер_строки]
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    
+    # 4. Устанавливаем уровень логирования для файла
+    # INFO и выше: INFO, WARNING, ERROR, CRITICAL
+    # DEBUG записи НЕ будут попадать в файл в продакшене
+    file_handler.setLevel(logging.INFO)
+    
+    # 5. Добавляем обработчик к логгеру приложения
+    app.logger.addHandler(file_handler)
+    
+    # 6. Устанавливаем общий уровень логирования для приложения
+    app.logger.setLevel(logging.INFO)
+    
+    # 7. Записываем стартовое сообщение в лог
+    app.logger.info('Microblog startup')
 
 
 # Импортируем модули
