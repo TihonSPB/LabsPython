@@ -199,7 +199,7 @@ def edit_profile():
     """
     
     # Создаем экземпляр формы редактирования профиля
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     
     # Часть 1: Обработка отправки формы (POST запрос)
     if form.validate_on_submit():

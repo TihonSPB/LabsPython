@@ -147,3 +147,33 @@ class EditProfileForm(FlaskForm):
     
     # Кнопка отправки формы
     submit = SubmitField('Отправить')
+    
+    
+    # СПЕЦИАЛЬНЫЙ КОНСТРУКТОР
+    def __init__(self, original_username, *args, **kwargs):
+        """
+        original_username: текущее имя пользователя ДО редактирования
+        Нужно для проверки, изменил ли пользователь свое имя
+        """
+        # Вызываем конструктор родительского класса (FlaskForm)
+        super().__init__(*args, **kwargs)
+        
+        # Сохраняем оригинальное имя пользователя как атрибут формы
+        self.original_username = original_username
+
+    # КАСТОМНАЯ ВАЛИДАЦИЯ USERNAME
+    def validate_username(self, username):
+        """
+        Проверяет, можно ли использовать новое имя пользователя.
+        Вызывается автоматически WTForms (по правилу naming convention)
+        """
+        # 1. Сравниваем новое имя с оригинальным
+        if username.data != self.original_username:
+            # 2. Если имя изменилось - проверяем, не занято ли оно
+            user = db.session.scalar(sa.select(User).where(
+                User.username == self.username.data))
+            
+            # 3. Если пользователь с таким именем уже существует
+            if user is not None:
+                # 4. Выбрасываем ошибку валидации
+                raise ValidationError('Пожалуйста, используйте другое имя пользователя.')
