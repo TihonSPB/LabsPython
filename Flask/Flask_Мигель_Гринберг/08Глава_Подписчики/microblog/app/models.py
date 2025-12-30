@@ -21,6 +21,33 @@ from flask_login import UserMixin
 from hashlib import md5
 
 
+""" 
+Таблица 'followers' для хранения отношений "кто на кого подписан" (самореферентная связь)
+follower_id | followed_id 
+------------|-------------
+     1      |     2        # User1 подписан на User2
+     1      |     3        # User1 подписан на User3
+     2      |     1        # User2 подписан на User1
+"""
+
+# таблица объявлена не как модель (class) Поскольку это вспомогательная таблица, в которой нет других данных, кроме внешних ключей
+followers = sa.Table(
+    'followers',           # Имя таблицы в базе данных
+    db.metadata,           # Метаданные SQLAlchemy (для привязки к БД) место, где SQLAlchemy хранит информацию обо всех таблицах
+    
+    # ПЕРВЫЙ столбец: ID подписчика (того, кто подписывается)
+    sa.Column('follower_id',          # Имя столбца
+              sa.Integer,             # Тип данных: целое число
+              sa.ForeignKey('user.id'),  # Внешний ключ на таблицу user, поле id
+              primary_key=True),      # Это часть составного первичного ключа
+    
+    # ВТОРОЙ столбец: ID того, на кого подписываются
+    sa.Column('followed_id',          # Имя столбца  
+              sa.Integer,             # Тип данных: целое число
+              sa.ForeignKey('user.id'),  # Внешний ключ на таблицу user, поле id
+              primary_key=True)       # Вторая часть составного первичного ключа
+)
+
 """
 Таблица user:
 id | username | email | password_hash | about_me | last_seen
@@ -73,6 +100,38 @@ class User(UserMixin, db.Model): # Класс наследуется от db.Mod
         # d=identicon - если у пользователя нет Gravatar, генерируется геометрическая иконка
         # s={size} - задает размер аватарки в пикселях
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+    
+    
+    # ОТНОШЕНИЕ "ПОДПИСКИ" (кто Я подписан)
+    following: so.WriteOnlyMapped['User'] = so.relationship(
+        # Таблица-посредник для связи многие-ко-многим
+        secondary=followers,
+        
+        # Условие: Я - подписчик (follower_id = мой id)
+        primaryjoin=(followers.c.follower_id == id),
+        
+        # Условие: На кого подписан (followed_id = id другого пользователя)
+        secondaryjoin=(followers.c.followed_id == id),
+        
+        # Обратная связь: у пользователей в followers будет ссылка на following
+        back_populates='followers'
+    )
+    
+    # ОТНОШЕНИЕ "ПОДПИСЧИКИ" (кто подписан на меня)
+    followers: so.WriteOnlyMapped['User'] = so.relationship(
+        # Та же таблица-посредник
+        secondary=followers,
+        
+        # Условие: Я - тот, на кого подписались (followed_id = мой id)
+        primaryjoin=(followers.c.followed_id == id),
+        
+        # Условие: Кто подписался (follower_id = id другого пользователя)
+        secondaryjoin=(followers.c.follower_id == id),
+        
+        # Обратная связь: у пользователей в following будет ссылка на followers
+        back_populates='following'
+    )
+    
 
 """
 Таблица post:
