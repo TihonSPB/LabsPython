@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Привет, {{ current_user.username }}!</h1>
+    <!--
+    Циклы
+    -->
+    {% for post in posts %}
+      <div><p>{{ post.author.username }} сказал(а): <b>{{ post.body }}</b></p></div>
+    {% endfor %}
+{% endblock %}
