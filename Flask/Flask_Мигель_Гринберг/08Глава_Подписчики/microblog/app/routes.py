@@ -6,7 +6,7 @@
 from flask import render_template, flash, redirect, url_for, request  #функция url_for() для ссылок, функция request для доступа к параметрам запроса
 from app import app, db # Импортируем объект базы данных
 
-from app.forms import LoginForm, RegistrationForm, EditProfileForm # Импорт классов LoginForm, RegistrationForm, EditProfileForm из модуля forms.py в пакете app
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm # Импорт классов LoginForm, RegistrationForm, EditProfileForm, EmptyForm из модуля forms.py в пакете app
 
 from flask_login import current_user, login_user, logout_user, login_required   # Импортируем текущего пользователя, функцию входа и выхода
 import sqlalchemy as sa # SQLAlchemy для построения запросов
@@ -156,8 +156,10 @@ def user(username):  # Функция получает username из URL
         {'author': user, 'body': 'Пост #2'}
     ]
     
+    form = EmptyForm() # для отображения кнопки "Подписаться"/"Отменить подписку"
+    
     # Рендерим шаблон user.html, передавая данные пользователя и его посты
-    return render_template('user.html', user=user, posts=posts)
+    return render_template('user.html', user=user, posts=posts, form=form)
 
 
 # Декоратор @app.before_request указывает, что эта функция
@@ -235,3 +237,76 @@ def edit_profile():
     return render_template('edit_profile.html', 
                           title='Edit Profile',  # Заголовок страницы
                           form=form)             # Объект формы для шаблона
+
+
+@app.route('/follow/<username>', methods=['POST']) # Только POST запросы! Защита от CSRF-атак
+@login_required # Декоратор - требует, чтобы пользователь был авторизован
+def follow(username):
+    """
+    МАРШРУТ ПОДПИСКИ
+    Обрабатывает POST-запросы для подписки текущего пользователя на другого пользователя.
+    Аргументы URL:
+        username (str): Имя пользователя, на которого хотим подписаться
+    """
+    form = EmptyForm() # Создаем экземпляр пустой формы (нужен только для CSRF-защиты)
+    # Валидация формы:
+    # - Проверяет CSRF-токен (защита от межсайтовой подделки запросов)
+    # - Для EmptyForm всегда возвращает True, если CSRF-токен валидный
+    if form.validate_on_submit():
+        # Ищем пользователя в базе данных по имени из URL
+        user = db.session.scalar(
+            sa.select(User).where(User.username == username))
+        # ПРОВЕРКА 1: Существует ли пользователь?
+        if user is None:
+            flash(f'Пользователь {username} не существует.') # Сообщение об ошибке
+            return redirect(url_for('index')) # Перенаправляем на главную
+        # ПРОВЕРКА 2: Не пытается ли пользователь подписаться на себя?
+        if user == current_user:
+            flash('На себя не подписаться!') # Сообщение об ошибке
+            # Возвращаем на страницу этого пользователя (своего профиля)
+            return redirect(url_for('user', username=username))
+        # ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ - выполняем подписку
+        current_user.follow(user) # Метод модели User (добавляет связь)
+        db.session.commit() # Сохраняем изменения в базе данных
+        # Сообщение об успехе
+        flash(f'Вы подписались на {username}!')
+        # Перенаправляем на страницу пользователя, на которого подписались
+        return redirect(url_for('user', username=username))
+    else:
+        # Если форма не прошла валидацию (например, нет CSRF-токена)
+        return redirect(url_for('index'))
+
+
+@app.route('/unfollow/<username>', methods=['POST']) # Только POST запросы
+@login_required # Требуется авторизация
+def unfollow(username):
+    """
+    МАРШРУТ ОТПИСКИ
+    Обрабатывает POST-запросы для отписки от пользователя.    
+    Аргументы URL:
+        username (str): Имя пользователя, от которого хотим отписаться
+    """
+    form = EmptyForm() # Создаем форму для CSRF-защиты
+    # Проверяем CSRF-токен
+    if form.validate_on_submit():
+        # Ищем пользователя в базе данных
+        user = db.session.scalar(
+            sa.select(User).where(User.username == username))
+        # ПРОВЕРКА 1: Существует ли пользователь?
+        if user is None:
+            flash(f'Пользователь {username} не существует.')
+            return redirect(url_for('index'))
+        # ПРОВЕРКА 2: Не пытается ли пользователь отписаться от себя?
+        if user == current_user:
+            flash('От себя не отписаться!')
+            return redirect(url_for('user', username=username))
+        # ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ - выполняем отписку
+        current_user.unfollow(user) # Метод модели User (удаляет связь)
+        db.session.commit() # Сохраняем изменения
+        # Сообщение об успехе
+        flash(f'Вы отписались от {username}.')
+        # Перенаправляем на страницу пользователя
+        return redirect(url_for('user', username=username))
+    else:
+        # Если CSRF-токен невалидный
+        return redirect(url_for('index'))

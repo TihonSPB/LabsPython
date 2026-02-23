@@ -177,3 +177,10 @@ class EditProfileForm(FlaskForm):
             if user is not None:
                 # 4. Выбрасываем ошибку валидации
                 raise ValidationError('Пожалуйста, используйте другое имя пользователя.')
+
+
+'''
+Пустая форма для подписки и отмены подписки.
+'''
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
