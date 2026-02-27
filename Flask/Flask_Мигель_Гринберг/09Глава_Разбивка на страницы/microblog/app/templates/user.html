@@ -1,0 +1,62 @@
+<!-- Наследуем базовый шаблон -->
+{% extends "base.html" %}
+
+<!-- Блок content, будет вставлен в базовый шаблон -->
+{% block content %}
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <!-- user.username берется из переменной, переданной из app/routes.py -->
+            <td>
+                <h1>Пользователь: {{ user.username }}</h1>
+                <!-- поля about_me и last_seen видны только если они есть. переменные, передаются из app/routes.py-->
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                {% if user.last_seen %}<p>Последнее появление: {{ user.last_seen }}</p>{% endif %}
+
+                <!-- СТАТИСТИКА ПОДПИСОК И ПОДПИСЧИКОВ -->
+                <!-- followers_count() - сколько человек подписано на этого пользователя -->
+                <!-- following_count() - на скольких человек подписан этот пользователь -->
+                <p>{{ user.followers_count() }} подписчиков, {{ user.following_count() }} подписок.</p>
+
+                <!-- УСЛОВНЫЙ БЛОК: проверяем, чей профиль просматривается -->
+                {% if user == current_user %}
+                    <!-- СЛУЧАЙ 1: Это СВОЙ профиль -->
+                    <!-- Показываем ссылку на редактирование профиля -->
+                    <p><a href="{{ url_for('edit_profile') }}">Редактировать профиль</a></p>
+                {% elif not current_user.is_following(user) %}
+                    <!-- СЛУЧАЙ 2: Это ЧУЖОЙ профиль, и мы НЕ ПОДПИСАНЫ на этого пользователя -->
+                    <!-- Показываем кнопку ПОДПИСКИ (Подписаться) -->
+                    <p>
+                        <!-- Форма отправляется POST запросом на маршрут follow -->
+                        <form action="{{ url_for('follow', username=user.username) }}" method="post">
+                            <!-- hidden_tag() - CSRF защита (обязательно для POST форм) -->
+                            {{ form.hidden_tag() }}
+                            <!-- Кнопка отправки формы с надписью "Подписаться" -->
+                            {{ form.submit(value='Подписаться') }}
+                        </form>
+                    </p>
+                {% else %}
+                    <!-- СЛУЧАЙ 3: Это ЧУЖОЙ профиль, и мы УЖЕ ПОДПИСАНЫ на этого пользователя -->
+                    <!-- Показываем кнопку ОТПИСКИ (Отменить подписку) -->
+                    <p>
+                        <!-- Форма отправляется POST запросом на маршрут unfollow -->
+                        <form action="{{ url_for('unfollow', username=user.username) }}" method="post">
+                            <!-- hidden_tag() - CSRF защита -->
+                            {{ form.hidden_tag() }}
+                            <!-- Кнопка отправки формы с надписью "Отменить подписку" -->
+                            {{ form.submit(value='Отменить подписку') }}
+                        </form>
+                    </p>
+                {% endif %}
+                
+            </td>
+        </tr>
+    </table>
+    <hr>
+    <!-- Цикл по всем постам пользователя -->
+    <!-- posts - список, переданный из app/routes.py -->
+    {% for post in posts %}
+        <!-- include - оператор вызыват суб-шаблон -->
+        {% include '_post.html' %}
+    {% endfor %}
+{% endblock %}
